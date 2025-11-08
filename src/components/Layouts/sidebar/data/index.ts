@@ -28,15 +28,21 @@ export const NAV_DATA = [
         url: "/policies",
         items: [],
       },
+      {
+        title: "Notifications",
+        icon: Icons.NotificationIcon,
+        url: "/notifications",
+        items: [],
+      },
     ],
   },
   {
-    label: "SETTINGS",
+    label: "SUPPORT",
     items: [
       {
-        title: "Security & Settings",
+        title: "Account Settings",
         icon: Icons.SecurityIcon,
-        url: "/security",
+        url: "/pages/settings",
         items: [],
       },
       {

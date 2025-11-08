@@ -10,16 +10,22 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useState } from "react";
 import { BellIcon } from "./icons";
-import { mockNotifications } from "@/data/mockData";
-
-// Get first 5 notifications for dropdown
-const notificationList = mockNotifications.slice(0, 5);
+import { mockNotifications, type Notification, getUnreadCount } from "@/utils/notifications";
 
 export function Notification() {
   const [isOpen, setIsOpen] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
   const isMobile = useIsMobile();
 
-  const unreadCount = mockNotifications.filter((n) => !n.read).length;
+  const unreadCount = getUnreadCount(notifications);
+  const notificationList = notifications.slice(0, 5);
+
+  const handleNotificationClick = (notificationId: number) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
+    );
+    setIsOpen(false);
+  };
 
   return (
     <Dropdown
@@ -45,7 +51,7 @@ export function Notification() {
 
       <DropdownContent
         align={isMobile ? "end" : "center"}
-        className="dark:border-coral-500/20 min-w-[20rem] rounded-3xl border border-white/60 bg-white/20 px-3.5 py-3 backdrop-blur-[40px] backdrop-brightness-[1.1] backdrop-saturate-[200%] dark:bg-white/5 dark:backdrop-brightness-[0.75]"
+        className="dark:border-coral-500/20 min-w-[20rem] rounded-3xl border border-gray-200 bg-white px-3.5 py-3 shadow-xl dark:border-gray-700 dark:bg-dark-2"
         style={{
           isolation: "isolate",
         }}
@@ -71,7 +77,7 @@ export function Notification() {
               <li key={notification.id} role="menuitem">
                 <Link
                   href={notification.link}
-                  onClick={() => setIsOpen(false)}
+                  onClick={() => handleNotificationClick(notification.id)}
                   className={cn(
                     "hover:shadow-soft-2 flex items-start gap-3 rounded-2xl p-3 outline-none transition-all hover:brightness-110",
                     "border border-transparent",

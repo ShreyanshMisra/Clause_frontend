@@ -10,10 +10,10 @@ export function Logo() {
       </div>
       <div>
         <h1 className="gradient-text text-xl font-bold tracking-tight">
-          Free Money
+          Clause
         </h1>
         <p className="text-xs font-medium text-dark-5 dark:text-gray-400">
-          AI Contract Analyzer
+          AI Lease Analyzer
         </p>
       </div>
     </div>

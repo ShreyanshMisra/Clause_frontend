@@ -289,6 +289,19 @@ export function HelpIcon(props: PropsType) {
   );
 }
 
+export function NotificationIcon(props: PropsType) {
+  return (
+    <svg width={24} height={24} viewBox="0 0 24 24" fill="none" {...props}>
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M12 1.25C8.272 1.25 5.25 4.272 5.25 8v2.926c0 .567-.148 1.123-.428 1.608l-1.442 2.5a3.643 3.643 0 003.149 5.466h3.221a3.75 3.75 0 007.5 0h3.221a3.643 3.643 0 003.149-5.466l-1.442-2.5a3.075 3.075 0 01-.428-1.608V8c0-3.728-3.022-6.75-6.75-6.75zM10.25 20.5a2.25 2.25 0 104.5 0h-4.5zm-3.722-2h11.944a2.143 2.143 0 001.853-3.217l-1.443-2.499a4.575 4.575 0 01-.632-2.39V8c0-2.9-2.35-5.25-5.25-5.25S7.75 5.1 7.75 8v2.394c0 .843-.22 1.671-.632 2.39l-1.443 2.499a2.143 2.143 0 001.853 3.217z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
 export function AnalyzeIcon(props: PropsType) {
   return (
     <svg width={24} height={24} viewBox="0 0 24 24" fill="none" {...props}>

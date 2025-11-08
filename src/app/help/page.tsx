@@ -44,19 +44,19 @@ export default function HelpPage() {
     {
       question: "Is this service free?",
       answer:
-        "Yes! Free Money App is currently free to use. We're committed to helping tenants and patients protect their rights and recover what they're owed.",
+        "Yes! Clause is currently free to use. We're committed to helping tenants protect their rights and recover what they're owed.",
     },
   ];
 
   return (
-    <div className="max-w-4xl space-y-6">
+    <div className="mx-auto max-w-4xl space-y-6">
       {/* Header */}
-      <div>
+      <div className="text-center">
         <h1 className="mb-1 text-3xl font-bold text-dark dark:text-white">
           Help & FAQ
         </h1>
         <p className="text-dark-5 dark:text-gray-400">
-          Find answers to common questions about Free Money App
+          Find answers to common questions about Clause
         </p>
       </div>
 
@@ -93,7 +93,7 @@ export default function HelpPage() {
 
       {/* FAQ Section */}
       <div className="glass-card">
-        <h2 className="mb-6 text-xl font-bold text-dark dark:text-white">
+        <h2 className="mb-6 text-center text-xl font-bold text-dark dark:text-white">
           Frequently Asked Questions
         </h2>
         <div className="space-y-4">
@@ -138,19 +138,19 @@ export default function HelpPage() {
       </div>
 
       {/* Contact Section */}
-      <div className="glass-card border-coral-200/50 from-coral-50/60 to-peach-50/40 dark:border-coral-500/30 dark:from-coral-500/10 dark:to-orchid-500/10 rounded-3xl border-2 bg-gradient-to-br p-6">
+      <div className="glass-card border-coral-200/50 from-coral-50/60 to-peach-50/40 dark:border-coral-500/30 dark:from-coral-500/10 dark:to-orchid-500/10 rounded-3xl border-2 bg-gradient-to-br p-6 text-center">
         <h2 className="mb-4 text-xl font-bold text-dark dark:text-white">
           Still need help?
         </h2>
         <p className="mb-6 leading-relaxed text-dark-5 dark:text-gray-400">
           Can't find what you're looking for? Our support team is here to help.
         </p>
-        <div className="flex flex-col gap-4 sm:flex-row">
+        <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
           <button
             onClick={() => {
               // In production, open contact form modal or navigate to contact page
               window.location.href =
-                "mailto:support@freemoneyapp.com?subject=Support Request";
+                "mailto:support@clause.app?subject=Support Request";
             }}
             className="btn-gradient px-8 py-4 font-semibold"
           >
@@ -160,7 +160,7 @@ export default function HelpPage() {
             onClick={() => {
               // In production, open feedback form modal
               window.location.href =
-                "mailto:feedback@freemoneyapp.com?subject=Feedback";
+                "mailto:feedback@clause.app?subject=Feedback";
             }}
             className="btn-glass px-8 py-4 font-semibold"
           >

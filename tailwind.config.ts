@@ -526,6 +526,18 @@ const config: Config = {
           "0%": { backgroundPosition: "-1000px 0" },
           "100%": { backgroundPosition: "1000px 0" },
         },
+        fadeIn: {
+          "0%": { opacity: "0", transform: "translateY(20px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        gradient: {
+          "0%, 100%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+        },
+        "bounce-slow": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(10px)" },
+        },
       },
       animation: {
         linspin: "linspin 1568.2353ms linear infinite",
@@ -548,6 +560,11 @@ const config: Config = {
         float: "float 6s ease-in-out infinite",
         blob: "blob 20s ease-in-out infinite",
         shimmer: "shimmer 2s linear infinite",
+        "fade-in": "fadeIn 1s ease-in-out",
+        "fade-in-delay": "fadeIn 1s ease-in-out 0.5s both",
+        "fade-in-button": "fadeIn 0.5s ease-in-out both",
+        "gradient": "gradient 3s ease infinite",
+        "bounce-slow": "bounce-slow 3s infinite",
       },
     },
   },

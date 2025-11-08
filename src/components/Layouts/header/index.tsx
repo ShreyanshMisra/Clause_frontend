@@ -1,6 +1,4 @@
 "use client";
-//dashboard header nav bar
-import { SearchIcon } from "@/assets/icons";
 import Image from "next/image";
 import Link from "next/link";
 import { useSidebarContext } from "../sidebar/sidebar-context";
@@ -44,16 +42,6 @@ export function Header() {
       </div>
 
       <div className="flex flex-1 items-center justify-end gap-2 min-[375px]:gap-4">
-        <div className="relative w-full max-w-[300px]">
-          <input
-            type="search"
-            placeholder="Search"
-            className="input-pill flex w-full items-center gap-3.5 py-3 pl-[53px] pr-5 outline-none"
-          />
-
-          <SearchIcon className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 max-[1015px]:size-5" />
-        </div>
-
         <ThemeToggleSwitch />
 
         <Notification />
