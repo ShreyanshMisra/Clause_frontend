@@ -13,6 +13,8 @@ import {
   type AnalysisData,
 } from "@/utils/fetchAnalysis";
 import type { PdfAnalysisViewerRef } from "@/components/PdfAnalysisViewer";
+import { api, type ChatRequest, type ChatResponse } from "@/lib/api";
+import toast from "react-hot-toast";
 
 const PdfAnalysisViewer = dynamic(
   () =>
@@ -34,7 +36,10 @@ const PdfAnalysisViewer = dynamic(
 
 export default function AnalysisPage() {
   const searchParams = useSearchParams();
-  const documentId = searchParams.get("documentId") || "1";
+  // Get file_id from URL - can be documentId or file_id param
+  const fileIdFromUrl =
+    searchParams.get("file_id") || searchParams.get("documentId") || null;
+  const documentId = fileIdFromUrl || "1";
   const caseId = searchParams.get("caseId");
   const [selectedIssue, setSelectedIssue] = useState<number | null>(null);
   const [chatOpen, setChatOpen] = useState(false);
@@ -42,7 +47,11 @@ export default function AnalysisPage() {
   const [caseModalOpen, setCaseModalOpen] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [chatMessages, setChatMessages] = useState<
-    Array<{ role: "user" | "ai"; content: string }>
+    Array<{
+      role: "user" | "ai";
+      content: string;
+      sources?: Array<{ chapter: string; section: string; relevance: string }>;
+    }>
   >([
     {
       role: "ai",
@@ -54,6 +63,14 @@ export default function AnalysisPage() {
   const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
   const [issues, setIssues] = useState<Highlight[]>([]);
   const pdfViewerRef = useRef<PdfAnalysisViewerRef>(null);
+  const chatMessagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when new messages are added
+  useEffect(() => {
+    if (chatOpen && chatMessagesEndRef.current) {
+      chatMessagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [chatMessages, chatOpen, isTyping]);
 
   useEffect(() => {
     const loadAnalysisData = async () => {
@@ -81,26 +98,56 @@ export default function AnalysisPage() {
     high: "severity-high",
   };
 
-  const mockChatResponses = [
-    "Based on the issues found in your document, you have strong legal grounds to recover your security deposit. Under Massachusetts law, landlords must return deposits within 30 days or provide an itemized list of deductions.",
-    "The illegal late fee you were charged can be disputed. Massachusetts caps late fees at the greater of 5% of monthly rent or $30. Any amount above this is illegal and must be refunded.",
-    "The non-refundable administrative fee is likely illegal. Most fees collected at move-in are considered part of the security deposit and must be refundable under M.G.L. c. 186 §15B.",
-    "You should send a demand letter requesting the return of your deposit plus triple damages. I can help you generate a professional demand letter using the template.",
-  ];
-
-  const handleSendMessage = (message: string) => {
-    if (!message.trim()) return;
+  const handleSendMessage = async (message: string) => {
+    if (!message.trim() || isTyping) return;
 
     setChatMessages((prev) => [...prev, { role: "user", content: message }]);
     setChatInput("");
     setIsTyping(true);
 
-    setTimeout(() => {
-      const response =
-        mockChatResponses[Math.floor(Math.random() * mockChatResponses.length)];
-      setChatMessages((prev) => [...prev, { role: "ai", content: response }]);
+    try {
+      // Use file_id from URL for document-specific context
+      // Include file_id if it exists and is not the default "1"
+      const fileId =
+        fileIdFromUrl && fileIdFromUrl !== "1" ? fileIdFromUrl : undefined;
+
+      // Prepare chat request
+      const chatRequest: ChatRequest = {
+        message: message.trim(),
+        ...(fileId && { file_id: fileId }),
+      };
+
+      // Call backend chat API
+      const response = await api.post<ChatResponse>("/chat", chatRequest);
+
+      // Add AI response with sources
+      setChatMessages((prev) => [
+        ...prev,
+        {
+          role: "ai",
+          content: response.answer,
+          sources: response.sources,
+        },
+      ]);
+    } catch (error: any) {
+      console.error("Chat error:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "I'm having trouble connecting. Please try again.";
+
+      setChatMessages((prev) => [
+        ...prev,
+        {
+          role: "ai",
+          content: `Sorry, I encountered an error: ${errorMessage}. Please try again.`,
+        },
+      ]);
+
+      toast.error("Failed to get AI response. Please try again.");
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   const documentTitle = analysisData?.documentMetadata.fileName || "Loading...";
@@ -365,7 +412,7 @@ export default function AnalysisPage() {
               </svg>
             </button>
           </div>
-          <div className="h-96 space-y-4 overflow-y-auto p-4">
+          <div className="custom-scrollbar h-96 space-y-4 overflow-y-auto p-4">
             {chatMessages.map((msg, idx) => (
               <div
                 key={idx}
@@ -380,7 +427,29 @@ export default function AnalysisPage() {
                       : "bg-gradient-to-br from-peach-100/60 to-coral-100/60 text-dark dark:from-coral-500/20 dark:to-orchid-500/20 dark:text-white"
                   }`}
                 >
-                  {msg.content}
+                  <div className="whitespace-pre-wrap">{msg.content}</div>
+                  {msg.sources && msg.sources.length > 0 && (
+                    <div className="mt-2 border-t border-peach-200/50 pt-2 dark:border-coral-500/20">
+                      <p className="mb-1 text-xs font-semibold text-dark-5 dark:text-gray-400">
+                        Sources:
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {msg.sources.map((source, sourceIdx) => (
+                          <span
+                            key={sourceIdx}
+                            className="rounded-full bg-peach-100 px-2 py-0.5 text-xs font-medium text-peach-700 dark:bg-peach-900/30 dark:text-peach-400"
+                          >
+                            M.G.L. c. {source.chapter} §{source.section}
+                            {source.relevance && (
+                              <span className="ml-1 opacity-70">
+                                ({parseFloat(source.relevance) * 100}%)
+                              </span>
+                            )}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -401,6 +470,7 @@ export default function AnalysisPage() {
                 </div>
               </div>
             )}
+            <div ref={chatMessagesEndRef} />
           </div>
           <div className="border-t border-peach-200/50 p-4 dark:border-coral-500/20">
             <div className="mb-2 flex flex-wrap gap-2">
@@ -411,9 +481,9 @@ export default function AnalysisPage() {
               ].map((suggestion) => (
                 <button
                   key={suggestion}
-                  onClick={() => {
+                  onClick={async () => {
                     setChatInput(suggestion);
-                    handleSendMessage(suggestion);
+                    await handleSendMessage(suggestion);
                   }}
                   className="glass rounded-full px-3 py-1.5 text-xs font-medium transition-all duration-300 hover:scale-105"
                 >
@@ -422,9 +492,9 @@ export default function AnalysisPage() {
               ))}
             </div>
             <form
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
-                handleSendMessage(chatInput);
+                await handleSendMessage(chatInput);
               }}
               className="flex gap-2"
             >
@@ -434,10 +504,12 @@ export default function AnalysisPage() {
                 onChange={(e) => setChatInput(e.target.value)}
                 placeholder="Ask a question..."
                 className="input-pill flex-1"
+                disabled={isTyping}
               />
               <button
                 type="submit"
-                className="btn-gradient rounded-full px-6 py-3 font-semibold"
+                disabled={isTyping}
+                className="btn-gradient rounded-full px-6 py-3 font-semibold disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Send
               </button>

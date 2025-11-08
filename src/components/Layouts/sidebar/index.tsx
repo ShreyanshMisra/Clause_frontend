@@ -3,29 +3,77 @@
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useEffect, useState, useRef } from "react";
 import { NAV_DATA } from "./data";
 import { ArrowLeftIcon, ChevronUp, SparklesIcon } from "./icons";
 import * as Icons from "./icons";
 import { MenuItem } from "./menu-item";
 import { useSidebarContext } from "./sidebar-context";
+import { api, type ChatRequest, type ChatResponse } from "@/lib/api";
+import toast from "react-hot-toast";
 
 export function Sidebar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { setIsOpen, isOpen, isMobile, toggleSidebar } = useSidebarContext();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const [chatOpen, setChatOpen] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [chatMessages, setChatMessages] = useState<
-    Array<{ role: "user" | "ai"; content: string }>
+    Array<{
+      role: "user" | "ai";
+      content: string;
+      sources?: Array<{ chapter: string; section: string; relevance: string }>;
+    }>
   >([
     {
       role: "ai",
-      content: "Hello! I'm your AI assistant. How can I help you today? 😊",
+      content:
+        "Hello! I'm your AI assistant. I can help answer questions about Massachusetts housing laws and your documents. How can I help you today? 😊",
     },
   ]);
   const [isTyping, setIsTyping] = useState(false);
+  const chatMessagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when new messages are added
+  useEffect(() => {
+    if (chatOpen && chatMessagesEndRef.current) {
+      chatMessagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [chatMessages, chatOpen, isTyping]);
+
+  // Get current file_id from URL if available (for document-specific context)
+  const getCurrentFileId = (): string | undefined => {
+    try {
+      // Check for file_id in search params (analysis/results pages)
+      if (searchParams) {
+        const fileId =
+          searchParams.get("file_id") || searchParams.get("documentId");
+        if (fileId && fileId !== "1") return fileId;
+      }
+
+      // Check for file_id in path (results page: /results/[id])
+      if (pathname && pathname.startsWith("/results/")) {
+        const match = pathname.match(/\/results\/([^/]+)/);
+        if (match && match[1] && match[1] !== "1") return match[1];
+      }
+
+      // Check sessionStorage for current file_id
+      if (typeof window !== "undefined") {
+        const sessionFileId = sessionStorage.getItem("current_file_id");
+        if (sessionFileId) return sessionFileId;
+      }
+    } catch (error) {
+      // If searchParams is not available, try sessionStorage
+      if (typeof window !== "undefined") {
+        const sessionFileId = sessionStorage.getItem("current_file_id");
+        if (sessionFileId) return sessionFileId;
+      }
+    }
+
+    return undefined;
+  };
 
   const toggleExpanded = (title: string) => {
     setExpandedItems((prev) => (prev.includes(title) ? [] : [title]));
@@ -70,7 +118,7 @@ export function Sidebar() {
 
       <aside
         className={cn(
-          "border-peach-200/30 dark:border-coral-500/20 max-w-[290px] overflow-hidden rounded-r-3xl border-r bg-white/40 backdrop-blur-2xl transition-[width] duration-300 ease-out dark:bg-white/5",
+          "max-w-[290px] overflow-hidden rounded-r-3xl border-r border-peach-200/30 bg-white/40 backdrop-blur-2xl transition-[width] duration-300 ease-out dark:border-coral-500/20 dark:bg-white/5",
           isMobile
             ? "fixed bottom-0 top-0 z-50 mb-4 ml-4 mt-4"
             : "sticky top-4 my-4 ml-4 h-[calc(100vh-2rem)]",
@@ -208,9 +256,9 @@ export function Sidebar() {
 
           {/* AI Helper Card */}
           <div className="mb-6 mr-3 mt-auto">
-            <div className="border-peach-200/40 from-peach-50/80 to-coral-50/60 dark:border-coral-500/30 dark:from-coral-500/10 dark:to-orchid-500/10 rounded-3xl border bg-gradient-to-br p-5 backdrop-blur-xl">
+            <div className="rounded-3xl border border-peach-200/40 bg-gradient-to-br from-peach-50/80 to-coral-50/60 p-5 backdrop-blur-xl dark:border-coral-500/30 dark:from-coral-500/10 dark:to-orchid-500/10">
               <div className="mb-4 flex items-center gap-3">
-                <div className="shadow-glow-coral rounded-full bg-gradient-primary p-2.5">
+                <div className="rounded-full bg-gradient-primary p-2.5 shadow-glow-coral">
                   <Icons.SparklesIcon
                     className="size-5 text-white"
                     aria-hidden="true"
@@ -227,7 +275,7 @@ export function Sidebar() {
               </div>
               <button
                 onClick={() => setChatOpen(true)}
-                className="shadow-glow-coral w-full rounded-full bg-gradient-primary px-4 py-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-105 active:scale-95"
+                className="w-full rounded-full bg-gradient-primary px-4 py-3 text-sm font-semibold text-white shadow-glow-coral transition-all duration-300 hover:scale-105 active:scale-95"
               >
                 Ask a Question
               </button>
@@ -239,16 +287,16 @@ export function Sidebar() {
       {/* AI Chat Panel - Bottom Left */}
       {chatOpen && (
         <div className="glass-card fixed bottom-6 left-6 z-50 w-96 rounded-3xl shadow-2xl">
-          <div className="border-peach-200/50 dark:border-coral-500/20 flex items-center justify-between border-b p-4">
+          <div className="flex items-center justify-between border-b border-peach-200/50 p-4 dark:border-coral-500/20">
             <div className="flex items-center gap-2">
-              <SparklesIcon className="text-coral-500 dark:text-coral-400 size-5" />
+              <SparklesIcon className="size-5 text-coral-500 dark:text-coral-400" />
               <span className="font-bold text-dark dark:text-white">
                 AI Helper
               </span>
             </div>
             <button
               onClick={() => setChatOpen(false)}
-              className="hover:bg-peach-100 dark:hover:bg-coral-500/20 rounded-full p-1.5 transition-colors"
+              className="rounded-full p-1.5 transition-colors hover:bg-peach-100 dark:hover:bg-coral-500/20"
               aria-label="Close chat"
             >
               <svg
@@ -266,7 +314,7 @@ export function Sidebar() {
               </svg>
             </button>
           </div>
-          <div className="h-96 space-y-4 overflow-y-auto p-4">
+          <div className="custom-scrollbar h-96 space-y-4 overflow-y-auto p-4">
             {chatMessages.map((msg, idx) => (
               <div
                 key={idx}
@@ -277,57 +325,113 @@ export function Sidebar() {
                 <div
                   className={`max-w-[80%] rounded-2xl p-3 text-sm ${
                     msg.role === "user"
-                      ? "bg-peach-200 dark:bg-peach-900/30 text-dark dark:text-white"
-                      : "from-peach-100/60 to-coral-100/60 dark:from-coral-500/20 dark:to-orchid-500/20 bg-gradient-to-br text-dark dark:text-white"
+                      ? "bg-peach-200 text-dark dark:bg-peach-900/30 dark:text-white"
+                      : "bg-gradient-to-br from-peach-100/60 to-coral-100/60 text-dark dark:from-coral-500/20 dark:to-orchid-500/20 dark:text-white"
                   }`}
                 >
-                  {msg.content}
+                  <div className="whitespace-pre-wrap">{msg.content}</div>
+                  {msg.sources && msg.sources.length > 0 && (
+                    <div className="mt-2 border-t border-peach-200/50 pt-2 dark:border-coral-500/20">
+                      <p className="mb-1 text-xs font-semibold text-dark-5 dark:text-gray-400">
+                        Sources:
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {msg.sources.map((source, sourceIdx) => (
+                          <span
+                            key={sourceIdx}
+                            className="rounded-full bg-peach-100 px-2 py-0.5 text-xs font-medium text-peach-700 dark:bg-peach-900/30 dark:text-peach-400"
+                          >
+                            M.G.L. c. {source.chapter} §{source.section}
+                            {source.relevance && (
+                              <span className="ml-1 opacity-70">
+                                ({parseFloat(source.relevance) * 100}%)
+                              </span>
+                            )}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
             {isTyping && (
               <div className="flex justify-start">
-                <div className="from-peach-100/60 to-coral-100/60 dark:from-coral-500/20 dark:to-orchid-500/20 rounded-2xl bg-gradient-to-br p-3">
+                <div className="rounded-2xl bg-gradient-to-br from-peach-100/60 to-coral-100/60 p-3 dark:from-coral-500/20 dark:to-orchid-500/20">
                   <div className="flex gap-1">
-                    <div className="bg-coral-500 h-2 w-2 animate-bounce rounded-full"></div>
+                    <div className="h-2 w-2 animate-bounce rounded-full bg-coral-500"></div>
                     <div
-                      className="bg-coral-500 h-2 w-2 animate-bounce rounded-full"
+                      className="h-2 w-2 animate-bounce rounded-full bg-coral-500"
                       style={{ animationDelay: "0.2s" }}
                     ></div>
                     <div
-                      className="bg-coral-500 h-2 w-2 animate-bounce rounded-full"
+                      className="h-2 w-2 animate-bounce rounded-full bg-coral-500"
                       style={{ animationDelay: "0.4s" }}
                     ></div>
                   </div>
                 </div>
               </div>
             )}
+            <div ref={chatMessagesEndRef} />
           </div>
-          <div className="border-peach-200/50 dark:border-coral-500/20 border-t p-4">
+          <div className="border-t border-peach-200/50 p-4 dark:border-coral-500/20">
             <form
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
-                if (!chatInput.trim()) return;
+                if (!chatInput.trim() || isTyping) return;
 
+                const userMessage = chatInput.trim();
                 setChatMessages((prev) => [
                   ...prev,
-                  { role: "user", content: chatInput },
+                  { role: "user", content: userMessage },
                 ]);
                 setChatInput("");
                 setIsTyping(true);
 
-                // Mock response - replace with actual API call later
-                setTimeout(() => {
+                try {
+                  // Get current file_id for context if available
+                  const fileId = getCurrentFileId();
+
+                  // Prepare chat request
+                  const chatRequest: ChatRequest = {
+                    message: userMessage,
+                    ...(fileId && { file_id: fileId }),
+                  };
+
+                  // Call backend chat API
+                  const response = await api.post<ChatResponse>(
+                    "/chat",
+                    chatRequest,
+                  );
+
+                  // Add AI response with sources
                   setChatMessages((prev) => [
                     ...prev,
                     {
                       role: "ai",
-                      content:
-                        "This is a template response. The backend chatbot integration will be implemented here.",
+                      content: response.answer,
+                      sources: response.sources,
                     },
                   ]);
+                } catch (error: any) {
+                  console.error("Chat error:", error);
+                  const errorMessage =
+                    error instanceof Error
+                      ? error.message
+                      : "I'm having trouble connecting. Please try again.";
+
+                  setChatMessages((prev) => [
+                    ...prev,
+                    {
+                      role: "ai",
+                      content: `Sorry, I encountered an error: ${errorMessage}. Please try again.`,
+                    },
+                  ]);
+
+                  toast.error("Failed to get AI response. Please try again.");
+                } finally {
                   setIsTyping(false);
-                }, 1500);
+                }
               }}
               className="flex gap-2"
             >
@@ -337,10 +441,12 @@ export function Sidebar() {
                 onChange={(e) => setChatInput(e.target.value)}
                 placeholder="Ask a question..."
                 className="input-pill flex-1"
+                disabled={isTyping}
               />
               <button
                 type="submit"
-                className="btn-gradient rounded-full px-6 py-3 font-semibold"
+                disabled={isTyping}
+                className="btn-gradient rounded-full px-6 py-3 font-semibold disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Send
               </button>
