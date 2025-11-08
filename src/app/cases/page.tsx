@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { api, DocumentsListResponse, APIError } from "@/lib/api";
 import toast from "react-hot-toast";
-import CardSkeleton from "@/components/Skeletons/CardSkeleton";
+import { CardSkeleton } from "@/components/Skeletons/CardSkeleton";
 
 interface CaseItem {
   id: string;
