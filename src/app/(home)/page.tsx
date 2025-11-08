@@ -8,89 +8,8 @@ export default function Dashboard() {
   return (
     <div className="space-y-8">
       {/* Hero Summary Card - "My Money Home Screen" */}
-      <div className="glass-card rounded-3xl bg-gradient-to-br from-peach-100/60 via-coral-100/40 to-orchid-100/40 p-8 dark:from-coral-500/15 dark:via-orchid-500/10 dark:to-purple-500/10 md:p-10">
-        <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
-          <div className="flex-1">
-            <p className="mb-2 text-sm font-semibold text-dark-5 dark:text-gray-400">
-              Hi there! 👋
-            </p>
-            <h1 className="mb-3 text-3xl font-bold text-dark dark:text-white md:text-4xl">
-              You might be owed up to{" "}
-              <span className="gradient-text text-4xl md:text-5xl">
-                $12,450
-              </span>
-            </h1>
-            <p className="text-dark-5 dark:text-gray-400">
-              Based on your analyzed documents, here's what we found
-            </p>
-          </div>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Link
-              href="/upload"
-              className="btn-gradient px-8 py-4 font-semibold"
-            >
-              Upload a new document
-            </Link>
-            <Link
-              href="/results/1"
-              className="btn-glass px-8 py-4 font-semibold"
-            >
-              View my last report
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          {
-            label: "Total potential refunds found",
-            value: "$12,450",
-            change: "+$2,340 this month",
-            icon: "💰",
-            gradient: "from-gold-400 to-peach-400",
-          },
-          {
-            label: "Documents analyzed",
-            value: "47",
-            change: "+12 this month",
-            icon: "📄",
-            gradient: "from-peach-400 to-coral-400",
-          },
-          {
-            label: "Cases in progress",
-            value: "8",
-            change: "3 ready for action",
-            icon: "📁",
-            gradient: "from-coral-400 to-orchid-400",
-          },
-          {
-            label: "Avg. processing time",
-            value: "2.3 min",
-            change: "⚡ Lightning fast",
-            icon: "⚡",
-            gradient: "from-mint-400 to-peach-400",
-          },
-        ].map((stat, idx) => (
-          <div key={idx} className="glass-card group cursor-pointer">
-            <div
-              className={`mb-4 inline-flex rounded-2xl bg-gradient-to-br ${stat.gradient} p-3.5 shadow-soft-2`}
-            >
-              <span className="text-2xl">{stat.icon}</span>
-            </div>
-            <div className="group-hover:gradient-text mb-1 text-3xl font-bold text-dark transition-all dark:text-white">
-              {stat.value}
-            </div>
-            <div className="mb-2 text-sm font-medium text-dark-5 dark:text-gray-400">
-              {stat.label}
-            </div>
-            <div className="text-xs font-semibold text-coral-600 dark:text-coral-400">
-              {stat.change}
-            </div>
-          </div>
-        ))}
-      </div>
+      
+        
 
       {/* Upload Zone - Centerpiece */}
       <div className="glass-card group cursor-pointer rounded-3xl border-2 border-dashed border-peach-300/50 bg-gradient-to-br from-peach-50/60 to-coral-50/40 p-12 text-center transition-all duration-300 hover:border-coral-400 hover:shadow-glow-peach dark:border-coral-500/30 dark:from-coral-500/10 dark:to-orchid-500/10">
@@ -252,9 +171,6 @@ export default function Dashboard() {
               </button>
             </div>
           </div>
-
-          {/* Recent Activity */}
-          <RecentActivity />
         </div>
       </div>
     </div>
