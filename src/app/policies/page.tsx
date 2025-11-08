@@ -150,7 +150,7 @@ export default function PoliciesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="glass-card from-peach-50/60 via-coral-50/40 to-orchid-50/40 dark:from-coral-500/10 dark:via-orchid-500/10 rounded-3xl bg-gradient-to-br p-8 dark:to-purple-500/10">
+      <div className="glass-card rounded-3xl bg-gradient-to-br from-peach-50/60 via-coral-50/40 to-orchid-50/40 p-8 dark:from-coral-500/10 dark:via-orchid-500/10 dark:to-purple-500/10">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
             <h1 className="mb-2 text-3xl font-bold text-dark dark:text-white">
@@ -159,9 +159,9 @@ export default function PoliciesPage() {
             <p className="mb-4 text-dark-5 dark:text-gray-400">
               Your past documents and the laws behind your rights.
             </p>
-            <div className="border-mint-200/50 bg-mint-50/50 dark:border-mint-800/30 dark:bg-mint-900/20 inline-flex items-center gap-2 rounded-full border px-4 py-2">
+            <div className="inline-flex items-center gap-2 rounded-full border border-mint-200/50 bg-mint-50/50 px-4 py-2 dark:border-mint-800/30 dark:bg-mint-900/20">
               <svg
-                className="text-mint-600 dark:text-mint-400 h-4 w-4"
+                className="h-4 w-4 text-mint-600 dark:text-mint-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -173,7 +173,7 @@ export default function PoliciesPage() {
                   d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                 />
               </svg>
-              <span className="text-mint-700 dark:text-mint-400 text-xs font-semibold">
+              <span className="text-xs font-semibold text-mint-700 dark:text-mint-400">
                 Secure & private
               </span>
             </div>
@@ -187,7 +187,7 @@ export default function PoliciesPage() {
           onClick={() => setActiveTab("documents")}
           className={`flex-1 rounded-full px-6 py-3 font-semibold transition-all duration-300 ${
             activeTab === "documents"
-              ? "shadow-glow-coral bg-gradient-primary text-white"
+              ? "bg-gradient-primary text-white shadow-glow-coral"
               : "text-dark-5 hover:text-dark dark:text-gray-400 dark:hover:text-white"
           }`}
         >
@@ -197,7 +197,7 @@ export default function PoliciesPage() {
           onClick={() => setActiveTab("guides")}
           className={`flex-1 rounded-full px-6 py-3 font-semibold transition-all duration-300 ${
             activeTab === "guides"
-              ? "shadow-glow-coral bg-gradient-primary text-white"
+              ? "bg-gradient-primary text-white shadow-glow-coral"
               : "text-dark-5 hover:text-dark dark:text-gray-400 dark:hover:text-white"
           }`}
         >
@@ -239,7 +239,7 @@ export default function PoliciesPage() {
             {documents.map((doc) => (
               <div key={doc.id} className="glass-card group cursor-pointer">
                 {/* Thumbnail */}
-                <div className="from-peach-100/60 to-coral-100/40 dark:from-coral-500/20 dark:to-orchid-500/20 mb-4 flex h-32 items-center justify-center rounded-2xl bg-gradient-to-br text-6xl transition-transform duration-300 group-hover:scale-105">
+                <div className="mb-4 flex h-32 items-center justify-center rounded-2xl bg-gradient-to-br from-peach-100/60 to-coral-100/40 text-6xl transition-transform duration-300 group-hover:scale-105 dark:from-coral-500/20 dark:to-orchid-500/20">
                   {doc.thumbnail}
                 </div>
 
@@ -248,7 +248,7 @@ export default function PoliciesPage() {
                   {doc.title}
                 </h3>
                 <div className="mb-4 flex items-center gap-2">
-                  <span className="bg-peach-100 text-peach-700 dark:bg-peach-900/30 dark:text-peach-400 rounded-full px-3 py-1 text-xs font-semibold">
+                  <span className="rounded-full bg-peach-100 px-3 py-1 text-xs font-semibold text-peach-700 dark:bg-peach-900/30 dark:text-peach-400">
                     {doc.type}
                   </span>
                   <span
@@ -271,7 +271,7 @@ export default function PoliciesPage() {
                 </div>
 
                 {/* Recovery Amount */}
-                <div className="border-peach-200/50 dark:border-coral-500/20 mb-4 border-t pt-4">
+                <div className="mb-4 border-t border-peach-200/50 pt-4 dark:border-coral-500/20">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-dark-5 dark:text-gray-400">
                       Found up to
@@ -286,7 +286,7 @@ export default function PoliciesPage() {
                 <div className="flex gap-2">
                   <Link
                     href={`/policies/document/${doc.id}`}
-                    className="shadow-soft-2 flex-1 rounded-full bg-gradient-primary px-4 py-2.5 text-center text-sm font-semibold text-white transition-all duration-300 hover:scale-105 active:scale-95"
+                    className="flex-1 rounded-full bg-gradient-primary px-4 py-2.5 text-center text-sm font-semibold text-white shadow-soft-2 transition-all duration-300 hover:scale-105 active:scale-95"
                   >
                     Open & Ask
                   </Link>
@@ -357,7 +357,7 @@ export default function PoliciesPage() {
                     onClick={() => setSelectedType(type.key)}
                     className={`rounded-full px-5 py-3 font-semibold transition-all duration-300 ${
                       selectedType === type.key
-                        ? "shadow-glow-coral bg-gradient-primary text-white"
+                        ? "bg-gradient-primary text-white shadow-glow-coral"
                         : "glass text-dark hover:scale-105 dark:text-white"
                     }`}
                   >
@@ -379,7 +379,7 @@ export default function PoliciesPage() {
             {filteredPolicies.map((policy) => (
               <div key={policy.id} className="glass-card group cursor-pointer">
                 <div className="mb-3 flex items-start justify-between">
-                  <span className="bg-peach-100 text-peach-700 dark:bg-peach-900/30 dark:text-peach-400 rounded-full px-3 py-1.5 text-xs font-semibold">
+                  <span className="rounded-full bg-peach-100 px-3 py-1.5 text-xs font-semibold text-peach-700 dark:bg-peach-900/30 dark:text-peach-400">
                     {policy.type}
                   </span>
                   <span
@@ -395,7 +395,7 @@ export default function PoliciesPage() {
                   {policy.summary}
                 </p>
                 {policy.referencedIn && (
-                  <div className="border-coral-300 bg-coral-50/50 text-coral-700 dark:border-coral-700/50 dark:bg-coral-900/20 dark:text-coral-400 mb-3 rounded-full border border-dashed px-3 py-1.5 text-xs font-medium">
+                  <div className="mb-3 rounded-full border border-dashed border-coral-300 bg-coral-50/50 px-3 py-1.5 text-xs font-medium text-coral-700 dark:border-coral-700/50 dark:bg-coral-900/20 dark:text-coral-400">
                     Referenced in {policy.referencedIn} of your documents
                   </div>
                 )}
@@ -403,13 +403,13 @@ export default function PoliciesPage() {
                   {policy.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="bg-peach-100/60 dark:bg-peach-900/20 rounded-full px-3 py-1 text-xs font-medium text-dark-5 dark:text-gray-400"
+                      className="rounded-full bg-peach-100/60 px-3 py-1 text-xs font-medium text-dark-5 dark:bg-peach-900/20 dark:text-gray-400"
                     >
                       {tag}
                     </span>
                   ))}
                 </div>
-                <button className="text-coral-600 dark:text-coral-400 mt-4 flex items-center gap-1 text-sm font-semibold hover:underline">
+                <button className="mt-4 flex items-center gap-1 text-sm font-semibold text-coral-600 hover:underline dark:text-coral-400">
                   View Details
                   <svg
                     className="h-4 w-4"

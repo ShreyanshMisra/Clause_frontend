@@ -82,28 +82,80 @@ export interface AnalysisData {
   highlights: Highlight[];
 }
 
-export async function fetchAnalysis(documentId: string): Promise<AnalysisData> {
+/**
+ * Calculate estimated recovery from highlights' damages_estimate values
+ * Always prefers calculated value from highlights over summary value.
+ * This ensures consistent amounts across all pages.
+ */
+export function calculateEstimatedRecovery(
+  highlights: Highlight[] | undefined | null,
+  fallbackValue: string | undefined,
+): string {
+  // If highlights array exists (even if empty), always calculate from them
+  // This ensures consistency - if highlights exist, we use the calculated value
+  if (highlights !== undefined && highlights !== null) {
+    const total = highlights.reduce((sum, highlight) => {
+      return sum + (highlight.damages_estimate || 0);
+    }, 0);
+    return `$${total.toLocaleString()}`;
+  }
+
+  // Fall back to summary value only if highlights don't exist at all
+  return fallbackValue || "$0";
+}
+
+export async function fetchAnalysis(file_id: string): Promise<AnalysisData> {
   try {
-    // In production, this would call the backend API
-    // For now, always use the mock data as fallback
-    const response = await fetch('/mock-data/sample-highlights.json');
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch analysis data: ${response.statusText}`);
+    // Import the API client
+    const { api, getFileUrl } = await import("@/lib/api");
+
+    // Fetch analysis from backend
+    const response = await api.get<{
+      file_id: string;
+      filename: string;
+      uploaded_at: string;
+      analyzed_at?: string;
+      status: string;
+      analysis?: AnalysisData;
+    }>(`/document/${file_id}`);
+
+    console.log("✅ Fetched analysis data from backend:", response);
+
+    // Check if analysis is complete
+    if (response.status !== "completed" || !response.analysis) {
+      throw new Error(
+        `Document analysis not complete. Status: ${response.status}`,
+      );
     }
-    
-    const data = await response.json();
-    console.log('✅ Fetched analysis data from mock JSON:', data);
-    
+
+    const data = response.analysis;
+
     // Validate that required fields exist
     if (!data.documentMetadata || !data.analysisSummary || !data.highlights) {
-      console.error('❌ Invalid analysis data structure:', data);
-      throw new Error('Invalid analysis data structure');
+      console.error("❌ Invalid analysis data structure:", data);
+      throw new Error("Invalid analysis data structure");
     }
-    
+
+    // Convert relative PDF URL to absolute URL
+    if (data.pdfUrl && !data.pdfUrl.startsWith("http")) {
+      data.pdfUrl = getFileUrl(data.pdfUrl);
+    }
+
     return data;
   } catch (error) {
-    console.error('❌ Error in fetchAnalysis:', error);
+    console.error("❌ Error in fetchAnalysis:", error);
+
+    // Fallback to mock data for development/testing
+    console.warn("⚠️  Falling back to mock data...");
+    try {
+      const response = await fetch("/mock-data/sample-highlights.json");
+      if (response.ok) {
+        return await response.json();
+      }
+    } catch (fallbackError) {
+      console.error("❌ Fallback to mock data also failed:", fallbackError);
+    }
+
     throw error;
   }
 }

@@ -55,7 +55,7 @@ export default function SignIn() {
             {/* Left Side - Auth Form */}
             <div className="w-full p-8 sm:p-12 lg:p-16 xl:w-1/2">
               <Link href="/" className="mb-8 inline-flex items-center gap-2.5">
-                <div className="shadow-glow-coral rounded-2xl bg-gradient-primary p-1.5">
+                <div className="rounded-2xl bg-gradient-primary p-1.5 shadow-glow-coral">
                   <SparklesIcon className="size-5 text-white" />
                 </div>
                 <div>
@@ -74,7 +74,7 @@ export default function SignIn() {
                   onClick={() => setIsSignUp(false)}
                   className={`flex-1 rounded-full px-6 py-3 font-semibold transition-all duration-300 ${
                     !isSignUp
-                      ? "shadow-glow-coral bg-gradient-primary text-white"
+                      ? "bg-gradient-primary text-white shadow-glow-coral"
                       : "text-dark-5 hover:text-dark dark:text-gray-400 dark:hover:text-white"
                   }`}
                 >
@@ -84,7 +84,7 @@ export default function SignIn() {
                   onClick={() => setIsSignUp(true)}
                   className={`flex-1 rounded-full px-6 py-3 font-semibold transition-all duration-300 ${
                     isSignUp
-                      ? "shadow-glow-coral bg-gradient-primary text-white"
+                      ? "bg-gradient-primary text-white shadow-glow-coral"
                       : "text-dark-5 hover:text-dark dark:text-gray-400 dark:hover:text-white"
                   }`}
                 >
@@ -123,7 +123,7 @@ export default function SignIn() {
                     />
                     {emailValid === true && (
                       <svg
-                        className="text-mint-500 absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2"
+                        className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-mint-500"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -138,7 +138,7 @@ export default function SignIn() {
                     )}
                   </div>
                   {emailValid === false && (
-                    <p className="text-coral-600 dark:text-coral-400 mt-1 text-sm">
+                    <p className="mt-1 text-sm text-coral-600 dark:text-coral-400">
                       Please enter a valid email address
                     </p>
                   )}
@@ -191,7 +191,7 @@ export default function SignIn() {
                     <label className="flex cursor-pointer items-center gap-2">
                       <input
                         type="checkbox"
-                        className="border-peach-300 text-coral-500 focus:ring-coral-500 rounded"
+                        className="rounded border-peach-300 text-coral-500 focus:ring-coral-500"
                       />
                       <span className="text-sm text-dark-5 dark:text-gray-400">
                         Remember me
@@ -199,7 +199,7 @@ export default function SignIn() {
                     </label>
                     <Link
                       href="#"
-                      className="text-coral-600 dark:text-coral-400 text-sm font-semibold hover:underline"
+                      className="text-sm font-semibold text-coral-600 hover:underline dark:text-coral-400"
                     >
                       Forgot password?
                     </Link>
@@ -212,7 +212,7 @@ export default function SignIn() {
 
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="border-peach-200 dark:border-coral-500/20 w-full border-t"></div>
+                    <div className="w-full border-t border-peach-200 dark:border-coral-500/20"></div>
                   </div>
                   <div className="relative flex justify-center text-sm">
                     <span className="bg-white/70 px-4 text-dark-5 dark:bg-white/5 dark:text-gray-400">
@@ -222,7 +222,7 @@ export default function SignIn() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <button className="glass border-peach-200/50 hover:shadow-soft-2 dark:border-coral-500/30 flex items-center justify-center gap-2 rounded-full border-2 px-4 py-3.5 font-semibold text-dark transition-all duration-300 hover:scale-105 dark:text-white">
+                  <button className="glass flex items-center justify-center gap-2 rounded-full border-2 border-peach-200/50 px-4 py-3.5 font-semibold text-dark transition-all duration-300 hover:scale-105 hover:shadow-soft-2 dark:border-coral-500/30 dark:text-white">
                     <svg
                       className="h-5 w-5"
                       viewBox="0 0 24 24"
@@ -247,7 +247,7 @@ export default function SignIn() {
                     </svg>
                     Google
                   </button>
-                  <button className="glass border-peach-200/50 hover:shadow-soft-2 dark:border-coral-500/30 flex items-center justify-center gap-2 rounded-full border-2 px-4 py-3.5 font-semibold text-dark transition-all duration-300 hover:scale-105 dark:text-white">
+                  <button className="glass flex items-center justify-center gap-2 rounded-full border-2 border-peach-200/50 px-4 py-3.5 font-semibold text-dark transition-all duration-300 hover:scale-105 hover:shadow-soft-2 dark:border-coral-500/30 dark:text-white">
                     <svg
                       className="h-5 w-5"
                       fill="currentColor"
@@ -265,7 +265,7 @@ export default function SignIn() {
                       Already have an account?{" "}
                       <button
                         onClick={() => setIsSignUp(false)}
-                        className="text-coral-600 dark:text-coral-400 font-semibold hover:underline"
+                        className="font-semibold text-coral-600 hover:underline dark:text-coral-400"
                       >
                         Sign in
                       </button>
@@ -275,7 +275,7 @@ export default function SignIn() {
                       Don't have an account?{" "}
                       <button
                         onClick={() => setIsSignUp(true)}
-                        className="text-coral-600 dark:text-coral-400 font-semibold hover:underline"
+                        className="font-semibold text-coral-600 hover:underline dark:text-coral-400"
                       >
                         Sign up
                       </button>
@@ -286,10 +286,10 @@ export default function SignIn() {
             </div>
 
             {/* Right Side - Visual */}
-            <div className="from-peach-100/50 via-coral-50/50 to-orchid-50/50 dark:from-coral-500/10 dark:via-orchid-500/10 hidden bg-gradient-to-br p-12 dark:to-purple-500/10 lg:p-16 xl:block xl:w-1/2">
+            <div className="hidden bg-gradient-to-br from-peach-100/50 via-coral-50/50 to-orchid-50/50 p-12 dark:from-coral-500/10 dark:via-orchid-500/10 dark:to-purple-500/10 lg:p-16 xl:block xl:w-1/2">
               <div className="flex h-full flex-col justify-center">
-                <div className="glass border-peach-200/40 dark:border-coral-500/30 mb-8 inline-flex w-fit items-center gap-2 rounded-full border px-5 py-2.5 backdrop-blur-xl dark:bg-white/5">
-                  <SparklesIcon className="text-coral-500 dark:text-coral-400 size-4" />
+                <div className="glass mb-8 inline-flex w-fit items-center gap-2 rounded-full border border-peach-200/40 px-5 py-2.5 backdrop-blur-xl dark:border-coral-500/30 dark:bg-white/5">
+                  <SparklesIcon className="size-4 text-coral-500 dark:text-coral-400" />
                   <span className="text-sm font-semibold text-dark dark:text-white">
                     Powered by Advanced AI
                   </span>

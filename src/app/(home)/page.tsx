@@ -8,7 +8,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-8">
       {/* Hero Summary Card - "My Money Home Screen" */}
-      <div className="glass-card from-peach-100/60 via-coral-100/40 to-orchid-100/40 dark:from-coral-500/15 dark:via-orchid-500/10 rounded-3xl bg-gradient-to-br p-8 dark:to-purple-500/10 md:p-10">
+      <div className="glass-card rounded-3xl bg-gradient-to-br from-peach-100/60 via-coral-100/40 to-orchid-100/40 p-8 dark:from-coral-500/15 dark:via-orchid-500/10 dark:to-purple-500/10 md:p-10">
         <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
           <div className="flex-1">
             <p className="mb-2 text-sm font-semibold text-dark-5 dark:text-gray-400">
@@ -75,7 +75,7 @@ export default function Dashboard() {
         ].map((stat, idx) => (
           <div key={idx} className="glass-card group cursor-pointer">
             <div
-              className={`mb-4 inline-flex rounded-2xl bg-gradient-to-br ${stat.gradient} shadow-soft-2 p-3.5`}
+              className={`mb-4 inline-flex rounded-2xl bg-gradient-to-br ${stat.gradient} p-3.5 shadow-soft-2`}
             >
               <span className="text-2xl">{stat.icon}</span>
             </div>
@@ -85,7 +85,7 @@ export default function Dashboard() {
             <div className="mb-2 text-sm font-medium text-dark-5 dark:text-gray-400">
               {stat.label}
             </div>
-            <div className="text-coral-600 dark:text-coral-400 text-xs font-semibold">
+            <div className="text-xs font-semibold text-coral-600 dark:text-coral-400">
               {stat.change}
             </div>
           </div>
@@ -93,8 +93,8 @@ export default function Dashboard() {
       </div>
 
       {/* Upload Zone - Centerpiece */}
-      <div className="glass-card border-peach-300/50 from-peach-50/60 to-coral-50/40 hover:border-coral-400 hover:shadow-glow-peach dark:border-coral-500/30 dark:from-coral-500/10 dark:to-orchid-500/10 group cursor-pointer rounded-3xl border-2 border-dashed bg-gradient-to-br p-12 text-center transition-all duration-300">
-        <div className="shadow-glow-coral mb-6 inline-flex rounded-3xl bg-gradient-primary p-6">
+      <div className="glass-card group cursor-pointer rounded-3xl border-2 border-dashed border-peach-300/50 bg-gradient-to-br from-peach-50/60 to-coral-50/40 p-12 text-center transition-all duration-300 hover:border-coral-400 hover:shadow-glow-peach dark:border-coral-500/30 dark:from-coral-500/10 dark:to-orchid-500/10">
+        <div className="mb-6 inline-flex rounded-3xl bg-gradient-primary p-6 shadow-glow-coral">
           <svg
             className="h-12 w-12 text-white"
             fill="none"
@@ -150,7 +150,7 @@ export default function Dashboard() {
               </h2>
               <Link
                 href="/cases"
-                className="text-coral-600 dark:text-coral-400 text-sm font-semibold hover:underline"
+                className="text-sm font-semibold text-coral-600 hover:underline dark:text-coral-400"
               >
                 View All
               </Link>
@@ -187,13 +187,13 @@ export default function Dashboard() {
               ].map((case_, idx) => (
                 <div
                   key={idx}
-                  className="border-peach-200/50 hover:border-coral-300 hover:shadow-soft-2 dark:border-coral-500/20 dark:hover:border-coral-500/40 group cursor-pointer rounded-2xl border bg-white/40 p-5 backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] dark:bg-white/5"
+                  className="group cursor-pointer rounded-2xl border border-peach-200/50 bg-white/40 p-5 backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] hover:border-coral-300 hover:shadow-soft-2 dark:border-coral-500/20 dark:bg-white/5 dark:hover:border-coral-500/40"
                 >
                   <div className="mb-3 flex items-start justify-between">
                     <div className="flex items-start gap-3">
                       <div className="text-2xl">{case_.icon}</div>
                       <div className="flex-1">
-                        <h3 className="group-hover:text-coral-600 dark:group-hover:text-coral-400 mb-1 font-bold text-dark transition-colors dark:text-white">
+                        <h3 className="mb-1 font-bold text-dark transition-colors group-hover:text-coral-600 dark:text-white dark:group-hover:text-coral-400">
                           {case_.title}
                         </h3>
                         <p className="text-sm text-dark-5 dark:text-gray-400">
@@ -226,7 +226,7 @@ export default function Dashboard() {
           {/* AI Helper Card */}
           <div className="glass-card sticky top-24">
             <div className="mb-6 text-center">
-              <div className="shadow-glow-coral mb-4 inline-flex rounded-3xl bg-gradient-primary p-5">
+              <div className="mb-4 inline-flex rounded-3xl bg-gradient-primary p-5 shadow-glow-coral">
                 <SparklesIcon className="size-8 text-white" />
               </div>
               <h3 className="mb-2 text-lg font-bold text-dark dark:text-white">

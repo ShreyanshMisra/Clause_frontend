@@ -8,6 +8,7 @@ import CreateCaseModal from "@/components/Modals/CreateCaseModal";
 import dynamic from "next/dynamic";
 import {
   fetchAnalysis,
+  calculateEstimatedRecovery,
   type Highlight,
   type AnalysisData,
 } from "@/utils/fetchAnalysis";
@@ -103,11 +104,22 @@ export default function AnalysisPage() {
   };
 
   const documentTitle = analysisData?.documentMetadata.fileName || "Loading...";
-  const estimatedRecovery =
-    analysisData?.analysisSummary.estimatedRecovery || "$0";
   const overallRisk = analysisData?.analysisSummary.overallRisk || "Unknown";
-  const issuesFound = analysisData?.analysisSummary.issuesFound || 0;
-  const totalRecovery = analysisData?.analysisSummary.potential_recovery || 0;
+  // Use actual highlights count instead of issuesFound from summary
+  const issuesFound = analysisData?.highlights?.length || 0;
+
+  // Calculate estimated recovery using shared utility function for consistency
+  const estimatedRecovery = calculateEstimatedRecovery(
+    analysisData?.highlights,
+    analysisData?.analysisSummary.estimatedRecovery,
+  );
+
+  // Calculate total recovery for internal use (numeric value)
+  const totalRecovery = analysisData?.highlights
+    ? analysisData.highlights.reduce((sum, highlight) => {
+        return sum + (highlight.damages_estimate || 0);
+      }, 0)
+    : analysisData?.analysisSummary.potential_recovery || 0;
 
   return (
     <div className="space-y-6">
@@ -177,23 +189,54 @@ export default function AnalysisPage() {
                 You might be owed
               </p>
             </div>
-            {totalRecovery > 0 && (
-              <div className="space-y-3">
-                {issues
-                  .filter(
-                    (issue) =>
-                      issue.damages_estimate && issue.damages_estimate > 0,
-                  )
-                  .map((issue, idx) => (
-                    <div key={idx} className="flex justify-between text-sm">
-                      <span className="text-dark-5 dark:text-gray-400">
-                        {issue.category}
-                      </span>
-                      <span className="font-bold text-dark dark:text-white">
-                        ${issue.damages_estimate?.toLocaleString()}
-                      </span>
-                    </div>
-                  ))}
+            {issues &&
+              issues.filter(
+                (issue) => issue.damages_estimate && issue.damages_estimate > 0,
+              ).length > 0 && (
+                <div className="custom-scrollbar max-h-64 overflow-y-auto pr-2">
+                  <div className="space-y-2">
+                    {issues
+                      .filter(
+                        (issue) =>
+                          issue.damages_estimate && issue.damages_estimate > 0,
+                      )
+                      .sort(
+                        (a, b) =>
+                          (b.damages_estimate || 0) - (a.damages_estimate || 0),
+                      )
+                      .map((issue, idx) => (
+                        <div
+                          key={issue.id || idx}
+                          className="flex flex-col gap-1 rounded-xl border border-peach-200/40 bg-white/70 p-2.5 backdrop-blur-sm transition-all duration-200 hover:border-coral-400/60 hover:bg-white/90 dark:border-coral-500/30 dark:bg-white/10 dark:hover:border-coral-500/50 dark:hover:bg-white/15"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate text-xs font-semibold text-dark dark:text-white">
+                                {issue.category}
+                              </p>
+                              {issue.statute && (
+                                <p className="mt-0.5 truncate text-xs text-dark-5 dark:text-gray-400">
+                                  {issue.statute}
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex-shrink-0">
+                              <span className="gradient-text whitespace-nowrap text-sm font-bold">
+                                ${issue.damages_estimate?.toLocaleString()}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
+            {(!issues ||
+              issues.filter(
+                (issue) => issue.damages_estimate && issue.damages_estimate > 0,
+              ).length === 0) && (
+              <div className="text-center text-sm text-dark-5 dark:text-gray-400">
+                No financial damages estimated
               </div>
             )}
           </div>
