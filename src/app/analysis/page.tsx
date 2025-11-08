@@ -1,16 +1,34 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { SparklesIcon } from "@/components/Layouts/sidebar/icons";
 import { useSearchParams } from "next/navigation";
 import GenerateLetterModal from "@/components/Modals/GenerateLetterModal";
 import CreateCaseModal from "@/components/Modals/CreateCaseModal";
 import dynamic from "next/dynamic";
-import { fetchAnalysis, type Highlight, type AnalysisData } from "@/utils/fetchAnalysis";
+import {
+  fetchAnalysis,
+  type Highlight,
+  type AnalysisData,
+} from "@/utils/fetchAnalysis";
+import type { PdfAnalysisViewerRef } from "@/components/PdfAnalysisViewer";
 
 const PdfAnalysisViewer = dynamic(
-  () => import("@/components/PdfAnalysisViewer").then((mod) => ({ default: mod.PdfAnalysisViewer })),
-  { ssr: false, loading: () => <div className="flex items-center justify-center h-screen"><div className="text-center"><div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div><p className="mt-4">Loading PDF viewer...</p></div></div> }
+  () =>
+    import("@/components/PdfAnalysisViewer").then((mod) => ({
+      default: mod.PdfAnalysisViewer,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
+          <p className="mt-4">Loading PDF viewer...</p>
+        </div>
+      </div>
+    ),
+  },
 );
 
 export default function AnalysisPage() {
@@ -34,6 +52,7 @@ export default function AnalysisPage() {
   const [isTyping, setIsTyping] = useState(false);
   const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
   const [issues, setIssues] = useState<Highlight[]>([]);
+  const pdfViewerRef = useRef<PdfAnalysisViewerRef>(null);
 
   useEffect(() => {
     const loadAnalysisData = async () => {
@@ -84,7 +103,8 @@ export default function AnalysisPage() {
   };
 
   const documentTitle = analysisData?.documentMetadata.fileName || "Loading...";
-  const estimatedRecovery = analysisData?.analysisSummary.estimatedRecovery || "$0";
+  const estimatedRecovery =
+    analysisData?.analysisSummary.estimatedRecovery || "$0";
   const overallRisk = analysisData?.analysisSummary.overallRisk || "Unknown";
   const issuesFound = analysisData?.analysisSummary.issuesFound || 0;
   const totalRecovery = analysisData?.analysisSummary.potential_recovery || 0;
@@ -100,12 +120,14 @@ export default function AnalysisPage() {
             </h1>
             <p className="text-dark-5 dark:text-gray-400">
               {analysisData?.documentMetadata.uploadDate
-                ? `Uploaded on ${new Date(analysisData.documentMetadata.uploadDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`
+                ? `Uploaded on ${new Date(analysisData.documentMetadata.uploadDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}`
                 : "Loading..."}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <span className={`${overallRisk.toLowerCase().includes("high") ? "severity-high" : overallRisk.toLowerCase().includes("medium") ? "severity-medium" : "severity-low"} rounded-full px-4 py-2 font-semibold`}>
+            <span
+              className={`${overallRisk.toLowerCase().includes("high") ? "severity-high" : overallRisk.toLowerCase().includes("medium") ? "severity-medium" : "severity-low"} rounded-full px-4 py-2 font-semibold`}
+            >
               {overallRisk} Risk
             </span>
             <button
@@ -127,13 +149,14 @@ export default function AnalysisPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Document Viewer */}
         <div className="lg:col-span-2">
-          <div className="glass-card">
-            <h2 className="mb-4 text-lg font-bold text-dark dark:text-white">
+          <div className="glass-card flex h-[calc(100vh-12rem)] flex-col">
+            <h2 className="mb-4 flex-shrink-0 text-lg font-bold text-dark dark:text-white">
               Document Viewer
             </h2>
-            <div className="rounded-2xl overflow-hidden min-h-[600px] bg-white dark:bg-dark-2">
-              <PdfAnalysisViewer 
-                documentId={documentId} 
+            <div className="flex-1 overflow-hidden rounded-2xl bg-white dark:bg-dark-2">
+              <PdfAnalysisViewer
+                ref={pdfViewerRef}
+                documentId={documentId}
                 onSelectIssue={(highlightId) => {
                   console.log("Selected highlight:", highlightId);
                 }}
@@ -143,9 +166,9 @@ export default function AnalysisPage() {
         </div>
 
         {/* Issues Panel */}
-        <div className="space-y-4">
+        <div className="flex h-[calc(100vh-12rem)] flex-col space-y-4">
           {/* Financial Summary */}
-          <div className="glass-card border-gold-200/50 from-gold-50/60 via-peach-50/40 to-coral-50/40 dark:border-gold-800/30 dark:from-gold-900/20 dark:via-peach-900/20 dark:to-coral-900/20 rounded-3xl border-2 bg-gradient-to-br p-6">
+          <div className="glass-card flex-shrink-0 rounded-3xl border-2 border-gold-200/50 bg-gradient-to-br from-gold-50/60 via-peach-50/40 to-coral-50/40 p-6 dark:border-gold-800/30 dark:from-gold-900/20 dark:via-peach-900/20 dark:to-coral-900/20">
             <div className="mb-4 text-center">
               <div className="gradient-text mb-1 text-4xl font-bold">
                 {estimatedRecovery}
@@ -157,7 +180,10 @@ export default function AnalysisPage() {
             {totalRecovery > 0 && (
               <div className="space-y-3">
                 {issues
-                  .filter((issue) => issue.damages_estimate && issue.damages_estimate > 0)
+                  .filter(
+                    (issue) =>
+                      issue.damages_estimate && issue.damages_estimate > 0,
+                  )
                   .map((issue, idx) => (
                     <div key={idx} className="flex justify-between text-sm">
                       <span className="text-dark-5 dark:text-gray-400">
@@ -173,31 +199,36 @@ export default function AnalysisPage() {
           </div>
 
           {/* Issues List */}
-          <div className="glass-card">
-            <h2 className="mb-4 text-lg font-bold text-dark dark:text-white">
+          <div className="glass-card flex min-h-0 flex-1 flex-col">
+            <h2 className="mb-4 flex-shrink-0 text-lg font-bold text-dark dark:text-white">
               Findings {issuesFound > 0 && `(${issuesFound})`}
             </h2>
-            <div className="space-y-3">
+            <div className="custom-scrollbar flex-1 space-y-3 overflow-y-auto pr-2">
               {issues.length > 0 ? (
                 issues.map((issue, idx) => {
                   const severity = getSeverityFromColor(issue.color);
-                  const amountDisplay = issue.damages_estimate && issue.damages_estimate > 0
-                    ? `$${issue.damages_estimate.toLocaleString()}`
-                    : null;
+                  const amountDisplay =
+                    issue.damages_estimate && issue.damages_estimate > 0
+                      ? `$${issue.damages_estimate.toLocaleString()}`
+                      : null;
 
                   return (
                     <div
                       key={issue.id}
-                      onClick={() =>
-                        setSelectedIssue(selectedIssue === idx ? null : idx)
-                      }
+                      onClick={() => {
+                        setSelectedIssue(selectedIssue === idx ? null : idx);
+                        // Scroll to highlight in PDF
+                        if (pdfViewerRef.current) {
+                          pdfViewerRef.current.scrollToHighlight(issue.id);
+                        }
+                      }}
                       className={`cursor-pointer rounded-2xl border-l-4 p-4 transition-all duration-300 hover:scale-[1.02] ${
                         severity === "high"
                           ? "border-coral-400 bg-coral-50/50 dark:bg-coral-900/10"
                           : severity === "medium"
                             ? "border-gold-400 bg-gold-50/50 dark:bg-gold-900/10"
                             : "border-mint-400 bg-mint-50/50 dark:bg-mint-900/10"
-                      } ${selectedIssue === idx ? "ring-coral-400 shadow-soft-2 ring-2" : ""}`}
+                      } ${selectedIssue === idx ? "shadow-soft-2 ring-2 ring-coral-400" : ""}`}
                     >
                       <div className="mb-2 flex items-start justify-between">
                         <h3 className="flex-1 font-bold text-dark dark:text-white">
@@ -216,7 +247,7 @@ export default function AnalysisPage() {
                       </p>
                       <div className="mt-3 flex items-center gap-2">
                         {issue.statute && (
-                          <span className="bg-peach-100 text-peach-700 dark:bg-peach-900/30 dark:text-peach-400 rounded-full px-3 py-1 font-mono text-xs font-semibold">
+                          <span className="rounded-full bg-peach-100 px-3 py-1 font-mono text-xs font-semibold text-peach-700 dark:bg-peach-900/30 dark:text-peach-400">
                             {issue.statute}
                           </span>
                         )}
@@ -227,7 +258,7 @@ export default function AnalysisPage() {
                         )}
                       </div>
                       {selectedIssue === idx && (
-                        <div className="border-peach-200/50 dark:border-coral-500/20 mt-4 space-y-3 border-t pt-4">
+                        <div className="mt-4 space-y-3 border-t border-peach-200/50 pt-4 dark:border-coral-500/20">
                           <div>
                             <h4 className="mb-1 text-sm font-bold text-dark dark:text-white">
                               Explanation
@@ -236,23 +267,24 @@ export default function AnalysisPage() {
                               {issue.explanation}
                             </p>
                           </div>
-                          {issue.damages_estimate && issue.damages_estimate > 0 && (
-                            <div>
-                              <h4 className="mb-1 text-sm font-bold text-dark dark:text-white">
-                                Potential Recovery
-                              </h4>
-                              <p className="text-sm leading-relaxed text-dark-5 dark:text-gray-400">
-                                ${issue.damages_estimate.toLocaleString()}
-                              </p>
-                            </div>
-                          )}
+                          {issue.damages_estimate &&
+                            issue.damages_estimate > 0 && (
+                              <div>
+                                <h4 className="mb-1 text-sm font-bold text-dark dark:text-white">
+                                  Potential Recovery
+                                </h4>
+                                <p className="text-sm leading-relaxed text-dark-5 dark:text-gray-400">
+                                  ${issue.damages_estimate.toLocaleString()}
+                                </p>
+                              </div>
+                            )}
                         </div>
                       )}
                     </div>
                   );
                 })
               ) : (
-                <div className="text-center text-dark-5 dark:text-gray-400 py-8">
+                <div className="py-8 text-center text-dark-5 dark:text-gray-400">
                   Loading issues...
                 </div>
               )}
@@ -264,16 +296,16 @@ export default function AnalysisPage() {
       {/* AI Chat Panel */}
       {chatOpen && (
         <div className="glass-card fixed bottom-6 right-6 z-50 w-96 rounded-3xl shadow-2xl">
-          <div className="border-peach-200/50 dark:border-coral-500/20 flex items-center justify-between border-b p-4">
+          <div className="flex items-center justify-between border-b border-peach-200/50 p-4 dark:border-coral-500/20">
             <div className="flex items-center gap-2">
-              <SparklesIcon className="text-coral-500 dark:text-coral-400 size-5" />
+              <SparklesIcon className="size-5 text-coral-500 dark:text-coral-400" />
               <span className="font-bold text-dark dark:text-white">
                 AI Helper
               </span>
             </div>
             <button
               onClick={() => setChatOpen(false)}
-              className="hover:bg-peach-100 dark:hover:bg-coral-500/20 rounded-full p-1.5"
+              className="rounded-full p-1.5 hover:bg-peach-100 dark:hover:bg-coral-500/20"
             >
               <svg
                 className="h-5 w-5"
@@ -301,8 +333,8 @@ export default function AnalysisPage() {
                 <div
                   className={`max-w-[80%] rounded-2xl p-3 text-sm ${
                     msg.role === "user"
-                      ? "bg-peach-200 dark:bg-peach-900/30 text-dark dark:text-white"
-                      : "from-peach-100/60 to-coral-100/60 dark:from-coral-500/20 dark:to-orchid-500/20 bg-gradient-to-br text-dark dark:text-white"
+                      ? "bg-peach-200 text-dark dark:bg-peach-900/30 dark:text-white"
+                      : "bg-gradient-to-br from-peach-100/60 to-coral-100/60 text-dark dark:from-coral-500/20 dark:to-orchid-500/20 dark:text-white"
                   }`}
                 >
                   {msg.content}
@@ -311,15 +343,15 @@ export default function AnalysisPage() {
             ))}
             {isTyping && (
               <div className="flex justify-start">
-                <div className="from-peach-100/60 to-coral-100/60 dark:from-coral-500/20 dark:to-orchid-500/20 rounded-2xl bg-gradient-to-br p-3">
+                <div className="rounded-2xl bg-gradient-to-br from-peach-100/60 to-coral-100/60 p-3 dark:from-coral-500/20 dark:to-orchid-500/20">
                   <div className="flex gap-1">
-                    <div className="bg-coral-500 h-2 w-2 animate-bounce rounded-full"></div>
+                    <div className="h-2 w-2 animate-bounce rounded-full bg-coral-500"></div>
                     <div
-                      className="bg-coral-500 h-2 w-2 animate-bounce rounded-full"
+                      className="h-2 w-2 animate-bounce rounded-full bg-coral-500"
                       style={{ animationDelay: "0.2s" }}
                     ></div>
                     <div
-                      className="bg-coral-500 h-2 w-2 animate-bounce rounded-full"
+                      className="h-2 w-2 animate-bounce rounded-full bg-coral-500"
                       style={{ animationDelay: "0.4s" }}
                     ></div>
                   </div>
@@ -327,7 +359,7 @@ export default function AnalysisPage() {
               </div>
             )}
           </div>
-          <div className="border-peach-200/50 dark:border-coral-500/20 border-t p-4">
+          <div className="border-t border-peach-200/50 p-4 dark:border-coral-500/20">
             <div className="mb-2 flex flex-wrap gap-2">
               {[
                 "Explain this in simple words",
@@ -374,7 +406,7 @@ export default function AnalysisPage() {
       {!chatOpen && (
         <button
           onClick={() => setChatOpen(true)}
-          className="shadow-glow-coral fixed bottom-6 right-6 rounded-full bg-gradient-primary p-5 transition-all duration-300 hover:scale-110 active:scale-95"
+          className="fixed bottom-6 right-6 rounded-full bg-gradient-primary p-5 shadow-glow-coral transition-all duration-300 hover:scale-110 active:scale-95"
         >
           <SparklesIcon className="size-7 text-white" />
         </button>

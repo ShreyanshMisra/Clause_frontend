@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useImperativeHandle,
+  forwardRef,
+} from "react";
 import {
   PdfLoader,
   PdfHighlighter,
@@ -11,6 +17,7 @@ import type {
   IHighlight,
   NewHighlight,
   ScaledPosition,
+  Scaled,
 } from "react-pdf-highlighter";
 import * as pdfjsLib from "pdfjs-dist";
 import {
@@ -34,20 +41,24 @@ interface PdfAnalysisViewerProps {
   onSelectIssue?: (highlightId: string) => void;
 }
 
+export interface PdfAnalysisViewerRef {
+  scrollToHighlight: (highlightId: string) => void;
+}
+
 interface CustomPopoverProps {
   highlight: AnalysisHighlight;
 }
 
 const CustomPopover: React.FC<CustomPopoverProps> = ({ highlight }) => (
-  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-4 max-w-md border border-gray-200 dark:border-gray-700">
+  <div className="max-w-md rounded-lg border border-gray-200 bg-white p-4 shadow-xl dark:border-gray-700 dark:bg-gray-800">
     <div className="space-y-3">
       <div>
-        <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-1">
+        <h3 className="mb-1 text-lg font-bold text-gray-900 dark:text-white">
           {highlight.category}
         </h3>
-        <div className="flex items-center gap-2 mb-2">
+        <div className="mb-2 flex items-center gap-2">
           <span
-            className={`inline-block px-2 py-1 text-xs font-semibold rounded ${
+            className={`inline-block rounded px-2 py-1 text-xs font-semibold ${
               highlight.color === "red"
                 ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
                 : highlight.color === "orange"
@@ -62,7 +73,7 @@ const CustomPopover: React.FC<CustomPopoverProps> = ({ highlight }) => (
         </div>
       </div>
 
-      <div className="text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 p-3 rounded italic">
+      <div className="rounded bg-gray-50 p-3 text-sm italic text-gray-700 dark:bg-gray-700 dark:text-gray-300">
         &quot;{highlight.text}&quot;
       </div>
 
@@ -83,7 +94,7 @@ const CustomPopover: React.FC<CustomPopoverProps> = ({ highlight }) => (
         </div>
       )}
 
-      <button className="w-full mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded transition-colors">
+      <button className="mt-2 w-full rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700">
         Generate Demand Letter
       </button>
     </div>
@@ -105,26 +116,115 @@ const getHighlightColor = (color: string): string => {
   }
 };
 
-export const PdfAnalysisViewer: React.FC<PdfAnalysisViewerProps> = ({
-  documentId,
-  apiUrl,
-  onSelectIssue,
-}) => {
+/**
+ * Normalizes raw position data from JSON into a proper ScaledPosition object
+ * that react-pdf-highlighter expects.
+ */
+const normalizePosition = (
+  raw: { boundingRect: any; rects: any[] },
+  pageNumber: number,
+): ScaledPosition => {
+  const makeScaled = (r: any): Scaled => {
+    const x1 = r.x1 ?? r.left ?? 0;
+    const y1 = r.y1 ?? r.top ?? 0;
+    const x2 = r.x2 ?? r.right ?? x1;
+    const y2 = r.y2 ?? r.bottom ?? y1;
+    const width = r.width ?? Math.max(0, x2 - x1);
+    const height = r.height ?? Math.max(0, y2 - y1);
+    return {
+      x1,
+      y1,
+      x2,
+      y2,
+      width,
+      height,
+      pageNumber,
+    };
+  };
+
+  const boundingRect = makeScaled(raw.boundingRect || {});
+  const rects =
+    raw.rects && raw.rects.length > 0
+      ? raw.rects.map((r) => makeScaled(r))
+      : [boundingRect];
+
+  return {
+    pageNumber,
+    boundingRect,
+    rects,
+    usePdfCoordinates: true,
+  };
+};
+
+export const PdfAnalysisViewer = forwardRef<
+  PdfAnalysisViewerRef,
+  PdfAnalysisViewerProps
+>(({ documentId, apiUrl, onSelectIssue }, ref) => {
   const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const scrollToRef = useRef<((highlight: IHighlight) => void) | null>(null);
+  const effectiveHighlightsRef = useRef<IHighlight[]>([]);
+
+  // Expose scrollToHighlight method via ref
+  // Must be called before any conditional returns to follow Rules of Hooks
+  useImperativeHandle(
+    ref,
+    () => ({
+      scrollToHighlight: (highlightId: string) => {
+        // Use ref to get current highlights (always up-to-date)
+        const highlights = effectiveHighlightsRef.current;
+        const highlight = highlights.find((h) => h.id === highlightId);
+        if (highlight && scrollToRef.current) {
+          console.log("📜 Scrolling to highlight:", highlightId);
+          scrollToRef.current(highlight);
+        } else {
+          console.warn("⚠️ Could not scroll to highlight:", highlightId, {
+            highlightFound: !!highlight,
+            scrollToAvailable: !!scrollToRef.current,
+            totalHighlights: highlights.length,
+          });
+        }
+      },
+    }),
+    [], // Empty dependency array since we use refs
+  );
 
   useEffect(() => {
     const loadAnalysis = async () => {
       try {
         setLoading(true);
+        // Clear highlights ref while loading
+        effectiveHighlightsRef.current = [];
         const data = await fetchAnalysis(documentId);
         console.log("✅ Analysis data loaded:", data);
-        setAnalysisData(data);
+
+        // Enhanced logging for debugging
+        console.log("fetchAnalysis result:", {
+          pdfUrl: data.pdfUrl,
+          count: data.highlights?.length,
+          firstHighlight: data.highlights?.[0],
+        });
+
+        // Ensure highlights is always an array
+        const safeHighlights = Array.isArray(data.highlights)
+          ? data.highlights
+          : [];
+
+        // Validate PDF URL
+        if (!data.pdfUrl || typeof data.pdfUrl !== "string") {
+          console.error("❌ Invalid PDF URL:", data.pdfUrl);
+          setError("Invalid PDF URL in analysis data");
+          effectiveHighlightsRef.current = [];
+          return;
+        }
+
+        setAnalysisData({ ...data, highlights: safeHighlights });
         setError(null);
       } catch (err) {
         console.error("❌ Error loading analysis:", err);
         setError("Failed to load analysis data");
+        effectiveHighlightsRef.current = [];
       } finally {
         setLoading(false);
       }
@@ -134,7 +234,7 @@ export const PdfAnalysisViewer: React.FC<PdfAnalysisViewerProps> = ({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex h-screen items-center justify-center">
         <div className="text-center">
           <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent" />
           <p className="mt-4 text-gray-600 dark:text-gray-400">
@@ -147,7 +247,7 @@ export const PdfAnalysisViewer: React.FC<PdfAnalysisViewerProps> = ({
 
   if (error || !analysisData) {
     return (
-      <div className="flex items-center justify-center h-screen text-center">
+      <div className="flex h-screen items-center justify-center text-center">
         <p className="text-xl font-semibold text-red-600 dark:text-red-400">
           {error || "No analysis data available"}
         </p>
@@ -155,35 +255,98 @@ export const PdfAnalysisViewer: React.FC<PdfAnalysisViewerProps> = ({
     );
   }
 
-  const highlights: IHighlight[] = analysisData.highlights.map((h) => ({
-    id: h.id,
-    position: {
-      boundingRect: h.position.boundingRect,
-      rects: h.position.rects,
-      pageNumber: h.pageNumber,
-    },
-    content: { text: h.text },
-    comment: { text: h.category, emoji: "" },
-  }));
+  // Normalize highlights from analysis data using the helper function
+  const highlights: IHighlight[] = (analysisData.highlights ?? []).map((h) => {
+    const normalizedPosition = normalizePosition(h.position, h.pageNumber);
+    return {
+      id: h.id,
+      position: normalizedPosition,
+      content: { text: h.text },
+      comment: { text: h.category, emoji: "" },
+    };
+  });
 
   const highlightMap = new Map(analysisData.highlights.map((h) => [h.id, h]));
 
+  // Test highlight fallback - only used if no highlights from data
+  const testHighlight: IHighlight = {
+    id: "test-highlight",
+    position: {
+      pageNumber: 1,
+      usePdfCoordinates: true,
+      boundingRect: {
+        x1: 72,
+        y1: 150,
+        x2: 540,
+        y2: 190,
+        width: 540 - 72,
+        height: 40,
+        pageNumber: 1,
+      },
+      rects: [
+        {
+          x1: 72,
+          y1: 150,
+          x2: 540,
+          y2: 190,
+          width: 540 - 72,
+          height: 40,
+          pageNumber: 1,
+        },
+      ],
+    },
+    content: { text: "Test highlight" },
+    comment: { text: "Test", emoji: "" },
+  };
+
+  // Use test highlight if no highlights from data
+  // For testing: set to true to always show test highlight, false to only show when no data
+  const useTestHighlight = highlights.length === 0;
+  const effectiveHighlights = useTestHighlight
+    ? [testHighlight, ...highlights]
+    : highlights;
+
+  // Update ref with current highlights so useImperativeHandle can access them
+  effectiveHighlightsRef.current = effectiveHighlights;
+
+  // Enhanced logging
   console.log("🎨 Highlights to render:", highlights);
   console.log("📍 First highlight position:", highlights[0]?.position);
-  console.log("📊 Total highlights:", highlights.length);
+  console.log("📊 Total highlights from data:", highlights.length);
+  console.log("📊 Effective highlights to render:", effectiveHighlights.length);
   console.log("📄 PDF URL:", analysisData.pdfUrl);
+
+  if (useTestHighlight) {
+    console.log("⚠️ No highlights from data, using test highlight");
+  }
+
+  // Log normalized position structure for first highlight
+  if (effectiveHighlights.length > 0) {
+    console.log(
+      "🔍 First effective highlight structure:",
+      JSON.stringify(effectiveHighlights[0], null, 2),
+    );
+  }
 
   return (
     <div
       style={{
         position: "relative",
         width: "100%",
-        height: "100vh",
+        height: "100%",
       }}
     >
-      <PdfLoader url={analysisData.pdfUrl} beforeLoad={<div>Loading PDF...</div>}>
+      <PdfLoader
+        url={analysisData.pdfUrl}
+        beforeLoad={<div>Loading PDF...</div>}
+      >
         {(pdfDocument) => {
           console.log("📄 PDF Document loaded:", pdfDocument);
+          console.log(
+            "🔢 About to render PdfHighlighter with",
+            effectiveHighlights.length,
+            "highlights",
+          );
           return (
             <PdfHighlighter
               pdfDocument={pdfDocument}
@@ -191,6 +354,7 @@ export const PdfAnalysisViewer: React.FC<PdfAnalysisViewerProps> = ({
               onScrollChange={() => {}}
               scrollRef={(scrollTo) => {
                 console.log("📜 ScrollRef initialized");
+                scrollToRef.current = scrollTo;
               }}
               onSelectionFinished={() => null}
               highlightTransform={(
@@ -200,53 +364,80 @@ export const PdfAnalysisViewer: React.FC<PdfAnalysisViewerProps> = ({
                 hideTip,
                 viewportToScaled,
                 screenshot,
-                isScrolledTo
+                isScrolledTo,
               ) => {
-                console.log(`🖍️ Rendering highlight ${index}:`, highlight.id, highlight.position);
-                
+                console.log(`🖍️ Rendering highlight ${index}:`, highlight.id);
+                console.log(
+                  `📍 Full highlight position object:`,
+                  JSON.stringify(highlight.position, null, 2),
+                );
+
                 const original = highlightMap.get(highlight.id);
                 const color = original
                   ? getHighlightColor(original.color)
-                  : "rgba(255,226,104,0.3)";
+                  : "rgba(255,226,104,0.35)";
 
-                console.log(`🎨 Using color: ${color} for highlight ${highlight.id}`);
-
-                return (
-                  <AreaHighlight
-                    key={highlight.id}
-                    highlight={highlight}
-                    isScrolledTo={isScrolledTo}
-                    onChange={() => {}}
-                    onClick={() => {
-                      console.log("🖱️ Clicked highlight:", highlight.id);
-                      setTip(highlight, () =>
-                        original ? (
-                          <CustomPopover highlight={original} />
-                        ) : (
-                          <div>No details available</div>
-                        )
-                      );
-                      if (onSelectIssue) onSelectIssue(highlight.id);
-                    }}
-                    onMouseEnter={() => {
-                      console.log("🐭 Mouse entered highlight:", highlight.id);
-                      setTip(highlight, () =>
-                        original ? (
-                          <CustomPopover highlight={original} />
-                        ) : (
-                          <div>No details available</div>
-                        )
-                      );
-                    }}
-                    onMouseLeave={hideTip}
-                  />
+                console.log(
+                  `🎨 Using color: ${color} for highlight ${highlight.id}`,
                 );
+                console.log(
+                  `📄 Highlight page number: ${highlight.position.pageNumber}`,
+                );
+                console.log(
+                  `📐 BoundingRect:`,
+                  highlight.position.boundingRect,
+                );
+                console.log(
+                  `📦 Rects count: ${highlight.position.rects.length}`,
+                );
+
+                // AreaHighlight accepts ...otherProps which are spread to the underlying Rnd component
+                // We apply the background color via inline style to override CSS module styles
+                // TypeScript doesn't know about these additional props, so we use type assertion
+                const areaHighlightProps = {
+                  key: highlight.id,
+                  highlight,
+                  isScrolledTo,
+                  onChange: () => {},
+                  // Apply style to Rnd component
+                  // The backgroundColor should be visible if CSS doesn't override with !important
+                  style: {
+                    backgroundColor: color,
+                  },
+                  onClick: (event: React.MouseEvent) => {
+                    event.stopPropagation();
+                    console.log("🖱️ Clicked highlight:", highlight.id);
+                    setTip(highlight, () =>
+                      original ? (
+                        <CustomPopover highlight={original} />
+                      ) : (
+                        <div>No details available</div>
+                      ),
+                    );
+                    if (onSelectIssue) onSelectIssue(highlight.id);
+                  },
+                  onMouseEnter: () => {
+                    console.log("🐭 Mouse entered highlight:", highlight.id);
+                    setTip(highlight, () =>
+                      original ? (
+                        <CustomPopover highlight={original} />
+                      ) : (
+                        <div>No details available</div>
+                      ),
+                    );
+                  },
+                  onMouseLeave: hideTip,
+                } as any;
+
+                return <AreaHighlight {...areaHighlightProps} />;
               }}
-              highlights={highlights}
+              highlights={effectiveHighlights}
             />
           );
         }}
       </PdfLoader>
     </div>
   );
-};
+});
+
+PdfAnalysisViewer.displayName = "PdfAnalysisViewer";

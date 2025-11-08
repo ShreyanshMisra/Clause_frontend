@@ -1,276 +1,1079 @@
 {
-  "documentId": "1",
+  "documentId": "test-20251108-144052",
   "pdfUrl": "/sample-lease.pdf",
   "documentMetadata": {
-    "fileName": "Lease Agreement - 16 New Ocean Street",
-    "uploadDate": "2024-01-15",
-    "fileSize": "245 KB",
-    "pageCount": 6,
+    "fileName": "Swampscott Town - 16 New Ocean Street Lease Agreement",
+    "uploadDate": "2025-11-08",
+    "fileSize": "140 KB",
+    "pageCount": 16,
     "documentType": "Commercial Lease Agreement",
     "parties": {
-      "landlord": "Town of Swampscott",
+      "landlord": "TOWN OF SWAMPSCOTT",
       "tenant": "[REDACTED]",
-      "property": "16 New Ocean Street, Swampscott, MA"
+      "property": "16 New Ocean Street, Swampscott, Massachusetts"
     }
   },
   "deidentificationSummary": {
-    "itemsRedacted": 12,
-    "categories": [
-      "Personal names (3 instances)",
-      "Email addresses (2 instances)",
-      "Phone numbers (1 instance)",
-      "Social Security Numbers (1 instance)",
-      "Bank account details (2 instances)",
-      "Signatures (3 instances)"
-    ]
+    "itemsRedacted": 0,
+    "categories": []
   },
   "keyDetailsDetected": {
-    "leaseType": "Commercial Lease",
-    "propertyAddress": "16 New Ocean Street, Swampscott, MA 01907",
-    "landlord": "Town of Swampscott",
-    "leaseTerm": "Initial term with extension option",
-    "monthlyRent": "Variable (see base rent clause)",
+    "leaseType": "Commercial",
+    "propertyAddress": "16 New Ocean Street, Swampscott, Massachusetts",
+    "landlord": "TOWN OF SWAMPSCOTT",
+    "leaseTerm": "Initial Term commences [BLANK], 2019 and expires on [BLANK], 20[BLANK], with an Extension Term of [BLANK] years for a total maximum term of [BLANK] years.",
+    "monthlyRent": "Base Rent of [BLANK] Dollars ($[BLANK]) per year, paid in monthly installments of [BLANK] Dollars ($[BLANK]) per month, increasing annually by [BLANK] percent ([BLANK]%).",
     "securityDeposit": "Not specified",
     "specialClauses": [
-      "AS-IS condition acceptance",
-      "Broad indemnification clause",
-      "Assignment restrictions",
-      "Tenant maintenance responsibilities"
+      "Premises accepted AS IS",
+      "Tenant responsible for all taxes, rates, charges, assessments, license fees, municipal liens, levies, excises, water and sewer charges",
+      "Tenant responsible for utilities",
+      "Tenant responsible for maintaining the Premises",
+      "Landlord responsible for electrical wiring and lighting, all plumbing and utility lines, the heating and ventilating system and the fire protection equipment and systems, the roof, exterior walls and foundations",
+      "Landlord reserves the right to conduct an annual inspection of the Premises"
     ]
   },
   "analysisSummary": {
     "status": "complete",
-    "summaryText": "Analysis Complete — 5 key issues found. This commercial lease contains some concerning indemnification language and lacks certain tenant protections.",
-    "overallRisk": "Medium-High",
+    "summaryText": "Analysis Complete — 5 key issues found. ⚠️  Found 5 illegal clause(s) that violate Massachusetts law | ⚡ Identified 12 risky term(s) that could be problematic | ✓ Found 7 tenant-favorable provision(s) | Power Imbalance Score: 100/100 (Concerning)",
+    "overallRisk": "Critical",
     "issuesFound": 5,
-    "potential_recovery": 0,
-    "estimatedRecovery": "$0",
+    "potential_recovery": 7500,
+    "estimatedRecovery": "$7,500",
     "topIssues": [
       {
-        "title": "AS-IS Premises Condition",
+        "title": "Implied Warranty of Habitability; Chapter 186, Section 15; Chapter 93A",
         "severity": "high",
-        "amount": "$0"
+        "amount": "$500"
       },
       {
-        "title": "Broad Indemnification Clause",
-        "severity": "high",
-        "amount": "$0"
+        "title": "Chapter 186, Section 15",
+        "severity": "critical",
+        "amount": "$500"
       },
       {
-        "title": "Assignment Restriction",
-        "severity": "medium",
-        "amount": "$0"
+        "title": "Chapter 186, Section 15",
+        "severity": "critical",
+        "amount": "$500"
       }
     ]
   },
   "highlights": [
     {
       "id": "hl-001",
-      "pageNumber": 3,
-      "color": "orange",
-      "priority": 2,
-      "category": "Broad Indemnification Clause",
-      "text": "Tenant shall, during the term hereof, assume and maintain exclusive control of the Premises and defend, indemnify and save harmless Landlord from and against all claims, expenses or liability of whatever nature arising from any act, omission or negligence of Tenant, Tenant's contractors, agents, employees, customers, and invitees",
-      "statute": "M.G.L. c. 186 §15",
-      "explanation": "This indemnification clause is extremely broad and could hold the tenant liable even for injuries caused partially by landlord's negligence or property defects. Massachusetts courts may limit overly broad indemnification clauses that attempt to shield landlords from their own negligence.",
-      "damages_estimate": 0,
+      "pageNumber": 2,
+      "color": "red",
+      "priority": 1,
+      "category": "Implied Warranty of Habitability; Chapter 186, Section 15; Chapter 93A",
+      "text": "The Premises are delivered to Tenant and Tenant accepts the Premises in their present condition, “AS IS,” it being agreed that Tenant has had a n opportunity to examine and inspect the Premises in all respects, that Landlord has made no representations or warranties of any kind with respect thereto, and that Landlord shall have no obligation to do any work on, or make any improvements to the Premi ses or the condition thereof.",
+      "statute": "Implied Warranty of Habitability; Chapter 186, Section 15; Chapter 93A",
+      "explanation": "This clause attempts to waive the implied warranty of habitability, requiring landlords to maintain premises fit for human habitation. An 'as is' clause absolving the landlord of all responsibility for the condition of the property, including essential systems, could be considered an unfair or deceptive practice under Chapter 93A. A landlord cannot contractually waive this responsibility. While this is a commercial lease, significant habitability issues could still trigger 93A violations.",
+      "damages_estimate": 500,
       "position": {
         "boundingRect": {
-          "x1": 72,
-          "y1": 245,
-          "x2": 540,
-          "y2": 310,
-          "pageNumber": 3
+          "x1": 72.02,
+          "y1": 647.26,
+          "x2": 459.69,
+          "y2": 703.3,
+          "width": 387.67,
+          "height": 56.04,
+          "pageNumber": 2
         },
         "rects": [
           {
-            "x1": 72,
-            "y1": 245,
-            "x2": 540,
-            "y2": 265,
-            "pageNumber": 3
+            "x1": 123.93,
+            "y1": 692.26,
+            "x2": 154.07,
+            "y2": 703.3,
+            "width": 30.14,
+            "height": 11.04,
+            "pageNumber": 2
           },
           {
-            "x1": 72,
-            "y1": 265,
-            "x2": 540,
-            "y2": 285,
-            "pageNumber": 3
-          },
-          {
-            "x1": 72,
-            "y1": 285,
-            "x2": 540,
-            "y2": 310,
-            "pageNumber": 3
+            "x1": 72.02,
+            "y1": 647.26,
+            "x2": 459.69,
+            "y2": 658.3,
+            "width": 387.67,
+            "height": 11.04,
+            "pageNumber": 2
           }
-        ]
+        ],
+        "pageHeight": 792,
+        "pageWidth": 612
       }
     },
     {
       "id": "hl-002",
-      "pageNumber": 1,
+      "pageNumber": 8,
       "color": "red",
       "priority": 1,
-      "category": "AS-IS Premises Condition",
-      "text": "The Premises are delivered to Tenant and Tenant accepts the Premises in their present condition, 'AS IS,' it being agreed that Tenant has had an opportunity to examine and inspect the Premises in all respects, that Landlord has made no representations or warranties of any kind with respect thereto, and that Landlord shall have no obligation to do any work on, or make any improvements to the Premises or the condition thereof.",
-      "statute": "M.G.L. c. 186 §19",
-      "explanation": "While 'AS-IS' clauses are generally enforceable for commercial leases, this language completely disclaims all landlord warranties and obligations. This shifts significant risk to the tenant, who may be responsible for costly repairs of pre-existing conditions, including potentially hazardous code violations.",
+      "category": "Chapter 186, Section 15",
+      "text": "9.1. Indemnification.  Tenant shall, during the term hereof, assume and maintain exclusive control of the Premises and defend, indemn ify and save harmless Landlord from and against all claims, expenses or liability of whatever nature arising from any act, omission or negligence of Tenant, Tenant's contractors, agents, employees, customers, and invitees, or anyone claiming by, through or  under Tenant, or arising, directly or indirectly, from any accident, injury or damage whatsoever, however caused, to any person, or to the property of any person, occurring after Tenant enters the Premises for any reason and until the end of the term of t his Lease and, thereafter, so long as Tenant or any occupant claiming under Tenant is in occupancy of any part of the Premises, in or about the Premises, or arising from any accident occurring outside the Premises but within the general area of the Premise s, where such accident, injury or damage results or is claimed to have resulted from any act, omission or negligence on the part of Tenant or Tenant's contractors, agents, employees, customers, and invitees, or anyone claiming by, through or under Tenant.",
+      "statute": "Chapter 186, Section 15",
+      "explanation": "This clause requires the tenant to indemnify the landlord for *any* liability, including liability arising from the landlord's own negligence.  This is a violation of M.G.L. c. 186, § 15, which states that any lease provision that attempts to preclude or exonerate the landlord from liability for their own negligence is against public policy and void.",
+      "damages_estimate": 500,
+      "position": {
+        "boundingRect": {
+          "x1": 72.02,
+          "y1": 647.26,
+          "x2": 538.22,
+          "y2": 672.82,
+          "width": 466.19,
+          "height": 25.56,
+          "pageNumber": 8
+        },
+        "rects": [
+          {
+            "x1": 72.02,
+            "y1": 661.78,
+            "x2": 538.22,
+            "y2": 672.82,
+            "width": 466.19,
+            "height": 11.04,
+            "pageNumber": 8
+          },
+          {
+            "x1": 72.02,
+            "y1": 647.26,
+            "x2": 87.02,
+            "y2": 658.3,
+            "width": 14.99,
+            "height": 11.04,
+            "pageNumber": 8
+          }
+        ],
+        "pageHeight": 792,
+        "pageWidth": 612
+      }
+    },
+    {
+      "id": "hl-003",
+      "pageNumber": 8,
+      "color": "red",
+      "priority": 1,
+      "category": "Chapter 186, Section 15",
+      "text": "9.2. Release.  To the maximum extent this Lease may be made effective according to law, Tenant agrees to use and occupy the Premis es at Tenant's own risk, and Landlord shall have no responsibility or liability for any loss or damage to fixtures or other personal property of Tenant or any person claiming by, through or under Tenant.  Without limitation, Tenant agrees that Landlord sha ll not be responsible or liable to Tenant, or those claiming by, through or under Tenant, for any loss or damage resulting to Tenant or those claiming by, through or under Tenant, its or their property from the breaking, bursting, stopping or leaking of el ectric cables and wires, and water, gas or steam pipes.",
+      "statute": "Chapter 186, Section 15",
+      "explanation": "This clause attempts to release the landlord from *any* responsibility or liability for loss or damage to the tenant's property, even if that loss or damage is caused by the landlord's negligence. This is an exculpatory clause that violates M.G.L. c. 186, § 15. This section makes such clauses, which preclude the landlord from liability for their own negligence, void as against public policy.",
+      "damages_estimate": 500,
+      "position": {
+        "boundingRect": {
+          "x1": 72.02,
+          "y1": 368.93,
+          "x2": 487.02,
+          "y2": 379.97,
+          "width": 415.0,
+          "height": 11.04,
+          "pageNumber": 8
+        },
+        "rects": [
+          {
+            "x1": 72.02,
+            "y1": 368.93,
+            "x2": 487.02,
+            "y2": 379.97,
+            "width": 415.0,
+            "height": 11.04,
+            "pageNumber": 8
+          }
+        ],
+        "pageHeight": 792,
+        "pageWidth": 612
+      }
+    },
+    {
+      "id": "hl-004",
+      "pageNumber": 11,
+      "color": "red",
+      "priority": 1,
+      "category": "Chapter 186, Section 15",
+      "text": "Tenant hereby waives any and all rights of recovery which it might otherwise have against Landlord, its agents, employees and other persons for whom Landlord may be responsible for any loss or damage to Tenant’s property or improvements in the Premises whi ch are either required to be insured under the terms of this Lease or which Tenant, in the absence of any such requirement, elects to insure, notwithstanding that the loss or damage may result from the negligence, willful act or default under the terms of this Lease by Landlord, its agents, employees, contractors, or other persons for whom Landlord may be responsible.",
+      "statute": "Chapter 186, Section 15",
+      "explanation": "This clause attempts to exculpate the landlord from liability for their own negligence, which is explicitly prohibited by M.G.L. c. 186, § 15. It is against public policy for a lease to relieve a landlord from liability for injury or damage caused by their own negligence.",
+      "damages_estimate": 5000,
+      "position": {
+        "boundingRect": {
+          "x1": 108.02,
+          "y1": 684.34,
+          "x2": 509.54,
+          "y2": 695.38,
+          "width": 401.52,
+          "height": 11.04,
+          "pageNumber": 11
+        },
+        "rects": [
+          {
+            "x1": 108.02,
+            "y1": 684.34,
+            "x2": 509.54,
+            "y2": 695.38,
+            "width": 401.52,
+            "height": 11.04,
+            "pageNumber": 11
+          }
+        ],
+        "pageHeight": 792,
+        "pageWidth": 612
+      }
+    },
+    {
+      "id": "hl-005",
+      "pageNumber": 13,
+      "color": "red",
+      "priority": 1,
+      "category": "Chapter 186, Section 20",
+      "text": "reasonable attorneys’ fees in instituting, prosecuting or defending any action or proceeding, such sums  \npaid or obligations incurred shall be paid to Landlord by Tenant as Additional Rent.  \n \nWithout limiting any of Landlord’s rights and remedies hereunder, and in addition to all other amounts \nTenant is otherwise obligated to pay, it is expressly agreed that Landlord shall be entitled to recover \nfrom Tenant all costs and expenses, including reasonable attorneys’ fees, incurred by Landlord in \nenforcing this Lease from and after Tenant’s default.",
+      "statute": "Chapter 186, Section 20",
+      "explanation": "This clause allows the landlord to recover attorneys' fees from the tenant in certain situations. Chapter 186, Section 20 mandates a reciprocal provision. Since this is likely a lease for residential property, the lease must contain a clause that the landlord pays the reasonable attorneys' fees of the tenant as well. Without the reciprocal clause, the landlord's clause is unenforceable.",
+      "damages_estimate": 0,
+      "position": {
+        "boundingRect": {
+          "x1": 72.02,
+          "y1": 692.26,
+          "x2": 532.06,
+          "y2": 717.82,
+          "width": 460.04,
+          "height": 25.56,
+          "pageNumber": 13
+        },
+        "rects": [
+          {
+            "x1": 72.02,
+            "y1": 706.78,
+            "x2": 532.06,
+            "y2": 717.82,
+            "width": 460.04,
+            "height": 11.04,
+            "pageNumber": 13
+          },
+          {
+            "x1": 72.02,
+            "y1": 692.26,
+            "x2": 91.41,
+            "y2": 703.3,
+            "width": 19.39,
+            "height": 11.04,
+            "pageNumber": 13
+          }
+        ],
+        "pageHeight": 792,
+        "pageWidth": 612
+      }
+    },
+    {
+      "id": "hl-006",
+      "pageNumber": 3,
+      "color": "yellow",
+      "priority": 3,
+      "category": "Unclear Allocation of Responsibility; Potential for Excessive Financial Burden",
+      "text": "Tenant shall be responsible for any and all taxes,  rates, charges, assessments, license fees, municipal liens, levies, excises, water and sewer charges, fees or other charges, whether general or special, or ordinary or extraordinary, of every kind and nature, including governmental or other impositions, c harged, levied, assessed, or imposed, whether by federal, state, local, or any other public authority, during the Term hereof, in relation to the Premises, Tenant’s personal property, and/ or Tenant’s use and operation of the Premises.",
+      "statute": "M.G.L. c. 186",
+      "explanation": "While commercial leases often pass on certain operating expenses to tenants, this clause is overly broad and could be interpreted to include taxes and assessments that are typically the landlord's responsibility (e.g., capital improvements). The language 'of every kind and nature' could lead to disputes over what constitutes a legitimate pass-through expense. While likely legal in a commercial context, this term is considered risky because it may violate 93A if it leads to undue financial burdens on the tenant, especially if the landlord does not accurately represent future costs or if these costs make rent unconscionable.",
+      "damages_estimate": 0,
+      "position": {
+        "boundingRect": {
+          "x1": 72.02,
+          "y1": 632.86,
+          "x2": 528.37,
+          "y2": 658.3,
+          "width": 456.34,
+          "height": 25.44,
+          "pageNumber": 3
+        },
+        "rects": [
+          {
+            "x1": 182.75,
+            "y1": 647.26,
+            "x2": 528.37,
+            "y2": 658.3,
+            "width": 345.62,
+            "height": 11.04,
+            "pageNumber": 3
+          },
+          {
+            "x1": 72.02,
+            "y1": 632.86,
+            "x2": 172.82,
+            "y2": 643.9,
+            "width": 100.8,
+            "height": 11.04,
+            "pageNumber": 3
+          }
+        ],
+        "pageHeight": 792,
+        "pageWidth": 612
+      }
+    },
+    {
+      "id": "hl-007",
+      "pageNumber": 4,
+      "color": "yellow",
+      "priority": 3,
+      "category": "Ambiguous Responsibility due to the Exception",
+      "text": "Landlord shall be responsible for the electrical wiring and lighting, all plumbing and utility lines serving the Premises, the heating and ventilating system and the fire protection equipment and syste ms serving the Building, the roof, exterior walls and foundations of the Building, in good and safe order, condition and repair, reasonable wear and tear and damage by fire or other casualty excepted.",
+      "statute": "M.G.L. c. 186",
+      "explanation": "The phrase 'reasonable wear and tear and damage by fire or other casualty excepted' creates ambiguity. It's unclear whether the Landlord's responsibility to maintain these systems extends only to conditions *not* caused by reasonable wear and tear or casualty, or if the Landlord must maintain these items irrespective of the cause, with the caveat that the standard of 'good and safe order, condition and repair' does not include repair necessitated by wear and tear. This could lead to disputes about the landlord's responsibility to repair essential systems after a fire or other event.",
+      "damages_estimate": 0,
+      "position": {
+        "boundingRect": {
+          "x1": 72.02,
+          "y1": 257.93,
+          "x2": 533.35,
+          "y2": 283.49,
+          "width": 461.32,
+          "height": 25.56,
+          "pageNumber": 4
+        },
+        "rects": [
+          {
+            "x1": 226.68,
+            "y1": 272.45,
+            "x2": 533.35,
+            "y2": 283.49,
+            "width": 306.67,
+            "height": 11.04,
+            "pageNumber": 4
+          },
+          {
+            "x1": 72.02,
+            "y1": 257.93,
+            "x2": 184.8,
+            "y2": 268.97,
+            "width": 112.77,
+            "height": 11.04,
+            "pageNumber": 4
+          }
+        ],
+        "pageHeight": 792,
+        "pageWidth": 612
+      }
+    },
+    {
+      "id": "hl-008",
+      "pageNumber": 4,
+      "color": "yellow",
+      "priority": 3,
+      "category": "Potential for Interference with Tenant's Business; Unclear Scope of Inspections",
+      "text": "Without limiting Landlord’s rights to access the Premises under other provisions of this Lease, Landlord hereby specifically reserves the right to conduct an annua l inspection of the Premises, and Tenant shall allow entry and access to the Swampscott Fire Department, Building Inspector, and such other persons as the Board of Selectmen may designate, for the purpose of investigating the condition of the of the Premis es.  Landlord shall provide Tenant with a minimum notice of twenty -four (24) hours, and not interfere unreasonably with Tenant’s use of the Premises.  Landlord may provide Tenant with a report of such assessments and list of repairs or maintenance that Lan dlord reasonably determines need to be made.",
+      "statute": "M.G.L. c. 186",
+      "explanation": "While a landlord has a right to reasonable access for inspections, the broad scope of 'such other persons as the Board of Selectmen may designate' and the vague purpose of 'investigating the condition of the Premises' could be abused. This could allow frequent or disruptive inspections that interfere with the tenant's business operations. The notice period is very short for a commercial property and tenant. Also, the lease doesn't clarify who pays if repairs are needed due to issues identified during these inspections. While seemingly standard, this provision can become problematic if abused by the Landlord.",
+      "damages_estimate": 0,
+      "position": {
+        "boundingRect": {
+          "x1": 72.02,
+          "y1": 140.54,
+          "x2": 531.5,
+          "y2": 165.98,
+          "width": 459.48,
+          "height": 25.44,
+          "pageNumber": 4
+        },
+        "rects": [
+          {
+            "x1": 108.02,
+            "y1": 154.94,
+            "x2": 531.5,
+            "y2": 165.98,
+            "width": 423.48,
+            "height": 11.04,
+            "pageNumber": 4
+          },
+          {
+            "x1": 72.02,
+            "y1": 140.54,
+            "x2": 118.78,
+            "y2": 151.58,
+            "width": 46.75,
+            "height": 11.04,
+            "pageNumber": 4
+          }
+        ],
+        "pageHeight": 792,
+        "pageWidth": 612
+      }
+    },
+    {
+      "id": "hl-009",
+      "pageNumber": 6,
+      "color": "yellow",
+      "priority": 3,
+      "category": "Vague requirement for tenant to comply with landlord's requests.",
+      "text": "Tenant agrees that it will, on request from Landlord, comply with any and all reasonable requirements of Landlord with respect to the work performed or materials furnished by Tenant or its agents, contractors, and sub -contractors in the Premises.",
+      "statute": "M.G.L. c. 186",
+      "explanation": "The term 'reasonable requirements' is subjective and open to interpretation. It could lead to disputes if the tenant and landlord disagree on what constitutes a reasonable requirement.  The landlord might impose burdensome or costly requirements that the tenant is obligated to fulfill.",
+      "damages_estimate": 0,
+      "position": {
+        "boundingRect": {
+          "x1": 72.02,
+          "y1": 503.83,
+          "x2": 513.26,
+          "y2": 529.39,
+          "width": 441.24,
+          "height": 25.56,
+          "pageNumber": 6
+        },
+        "rects": [
+          {
+            "x1": 481.95,
+            "y1": 518.35,
+            "x2": 513.26,
+            "y2": 529.39,
+            "width": 31.31,
+            "height": 11.04,
+            "pageNumber": 6
+          },
+          {
+            "x1": 72.02,
+            "y1": 503.83,
+            "x2": 431.83,
+            "y2": 514.87,
+            "width": 359.8,
+            "height": 11.04,
+            "pageNumber": 6
+          }
+        ],
+        "pageHeight": 792,
+        "pageWidth": 612
+      }
+    },
+    {
+      "id": "hl-010",
+      "pageNumber": 6,
+      "color": "yellow",
+      "priority": 3,
+      "category": "Loss of tenant's investment in structural improvements",
+      "text": "All structural alterations and additions made by Tenant shall become the exclusive property of Landlord upon completion.",
+      "statute": "M.G.L. c. 186",
+      "explanation": "While seemingly straightforward, this clause could be problematic if the tenant invests a significant amount of money in structural alterations. The tenant would not be compensated for these improvements upon the lease's termination.  This could deter tenants from making valuable structural improvements to the property.",
+      "damages_estimate": 0,
+      "position": {
+        "boundingRect": {
+          "x1": 72.02,
+          "y1": 326.93,
+          "x2": 512.82,
+          "y2": 352.49,
+          "width": 440.8,
+          "height": 25.56,
+          "pageNumber": 6
+        },
+        "rects": [
+          {
+            "x1": 244.04,
+            "y1": 341.45,
+            "x2": 512.82,
+            "y2": 352.49,
+            "width": 268.78,
+            "height": 11.04,
+            "pageNumber": 6
+          },
+          {
+            "x1": 72.02,
+            "y1": 326.93,
+            "x2": 263.62,
+            "y2": 337.97,
+            "width": 191.6,
+            "height": 11.04,
+            "pageNumber": 6
+          }
+        ],
+        "pageHeight": 792,
+        "pageWidth": 612
+      }
+    },
+    {
+      "id": "hl-011",
+      "pageNumber": 6,
+      "color": "yellow",
+      "priority": 3,
+      "category": "Potential disputes over what constitutes 'damage' and the cost of restoration.",
+      "text": "All nonstructural alterations and additions made by Tenant shall remain the exclusive property of  Tenant.  Tenant may at any time, at its sole option, remove any such alteration or addition, provided that removal does not damage the Premises or Tenant restores the Premises to the same condition as prior to such alteration or addition.",
+      "statute": "M.G.L. c. 186",
+      "explanation": "The phrase 'damage the Premises' is vague. If the tenant removes a nonstructural alteration, the landlord could claim that the removal caused damage and demand payment for repairs.  The cost of restoring the premises 'to the same condition' could also be a point of contention.",
+      "damages_estimate": 0,
+      "position": {
+        "boundingRect": {
+          "x1": 72.02,
+          "y1": 312.41,
+          "x2": 536.06,
+          "y2": 337.97,
+          "width": 464.03,
+          "height": 25.56,
+          "pageNumber": 6
+        },
+        "rects": [
+          {
+            "x1": 347.68,
+            "y1": 326.93,
+            "x2": 536.06,
+            "y2": 337.97,
+            "width": 188.38,
+            "height": 11.04,
+            "pageNumber": 6
+          },
+          {
+            "x1": 72.02,
+            "y1": 312.41,
+            "x2": 351.9,
+            "y2": 323.45,
+            "width": 279.88,
+            "height": 11.04,
+            "pageNumber": 6
+          }
+        ],
+        "pageHeight": 792,
+        "pageWidth": 612
+      }
+    },
+    {
+      "id": "hl-012",
+      "pageNumber": 7,
+      "color": "orange",
+      "priority": 2,
+      "category": "Potentially violates implied warranty of habitability",
+      "text": "Landlord shall have no responsibility to Tenant, its agents, employees, representatives and invitees, for the presence of Hazardous Substances on the Premises or be required to abate or remediate the same.",
+      "statute": "M.G.L. c. 186",
+      "explanation": "While the tenant is prohibited from introducing hazardous substances, this clause disclaims any landlord responsibility for *existing* hazardous substances.  In MA, landlords have a duty to provide a safe and habitable dwelling. A landlord's failure to address hazardous substances already present could violate this implied warranty of habitability and possibly c. 93A depending on the substance and severity. The enforceability of this clause will heavily depend on the extent and nature of the hazardous substance and the landlord's knowledge thereof.",
+      "damages_estimate": 0,
+      "position": {
+        "boundingRect": {
+          "x1": 72.02,
+          "y1": 355.97,
+          "x2": 530.07,
+          "y2": 381.41,
+          "width": 458.05,
+          "height": 25.44,
+          "pageNumber": 7
+        },
+        "rects": [
+          {
+            "x1": 467.66,
+            "y1": 370.37,
+            "x2": 530.07,
+            "y2": 381.41,
+            "width": 62.41,
+            "height": 11.04,
+            "pageNumber": 7
+          },
+          {
+            "x1": 72.02,
+            "y1": 355.97,
+            "x2": 484.81,
+            "y2": 367.01,
+            "width": 412.79,
+            "height": 11.04,
+            "pageNumber": 7
+          }
+        ],
+        "pageHeight": 792,
+        "pageWidth": 612
+      }
+    },
+    {
+      "id": "hl-013",
+      "pageNumber": 7,
+      "color": "yellow",
+      "priority": 3,
+      "category": "Potentially unreasonable restriction on assignment and subletting in a commercial context",
+      "text": "8.5 Assignment and Subleasing.  Tenant shall not assign, sublet, underlet, mortgage, pledge or encumber (collectively referred to as \"Transfer\") this Lease without Landlord's prior written consent, which may be withheld in Landlord’s sole discretion.",
+      "statute": "M.G.L. c. 186",
+      "explanation": "While generally permissible, a clause allowing the Landlord to withhold consent in its 'sole discretion' in a commercial lease is subject to scrutiny. MA courts may require the Landlord to act reasonably, especially if the lease doesn't explicitly state that consent can be unreasonably withheld. This clause is less risky than a similar clause in a residential lease, but the tenant should be aware of the potential for dispute if the Landlord withholds consent for an unreasonable reason.  A more favorable clause for the tenant would specify that consent will not be unreasonably withheld or delayed.",
+      "damages_estimate": 0,
+      "position": {
+        "boundingRect": {
+          "x1": 72.02,
+          "y1": 178.94,
+          "x2": 511.91,
+          "y2": 204.5,
+          "width": 439.88,
+          "height": 25.56,
+          "pageNumber": 7
+        },
+        "rects": [
+          {
+            "x1": 72.02,
+            "y1": 193.46,
+            "x2": 511.91,
+            "y2": 204.5,
+            "width": 439.88,
+            "height": 11.04,
+            "pageNumber": 7
+          },
+          {
+            "x1": 72.02,
+            "y1": 178.94,
+            "x2": 173.23,
+            "y2": 189.98,
+            "width": 101.2,
+            "height": 11.04,
+            "pageNumber": 7
+          }
+        ],
+        "pageHeight": 792,
+        "pageWidth": 612
+      }
+    },
+    {
+      "id": "hl-014",
+      "pageNumber": 9,
+      "color": "yellow",
+      "priority": 3,
+      "category": "The extensive insurance requirements placed on the Tenant's contractors are overly burdensome. This could potentially violate Chapter 93A if the requirements are unreasonable and create an unfair negotiating position for the Landlord.",
+      "text": "Should Tenant choose to make improvements to the Building, Tenant shall provide Landlord with evidence that Tenant has required its contractors to maintain (i) worker’s compensation insurance in the amounts required by law (or reasonably comparable insurance if such insurance is no longer available), (ii) builder’s risk (or su ch reasonably comparable insurance) insurance on an “all risk” basis (including collapse) insuring against casualty to such construction for full replacement value of the work performed and the equipment supplies and materials furnished and stored, (iii) a utomobile liability insurance in the minimum amounts required by law with limits of liability not less than $1,000,000 per occurrence for property damage and $2,000,000 combined single limit, (iv) Employer’s Liability Insurance affording protection in the amount of not less than $500,000 per accident and $500,000 for disease, (v) public liability insurance within limits in an amount not less than $3,000,000 comprehensive general liability total with a limit of $1,000,000 an occurrence, and (vi) Professional /Environmental Impairment Liability Insurance providing coverage for environmental contamination , bodily injury and/or property damage arising out of acts and omissions of Tenant or its contractors, employees or agents in the performance of the Permitted Uses or any other activities or failures to act at or with respect to the Premises in the amount of $1,000,000 for each claim and $1,000,000 in the aggregate (which insurance, unlike the other insurance noted above, may be made on a claims made basis).  \nTenant shall require that Landlord, and its officers, agents, servants and employees be named as \nadditional insurers on all subtenants, concessionaires, subcontractor’s and independent contractor’s \ninsurance, excluding Workers’ Compensation.",
+      "statute": "M.G.L. c. 186",
+      "explanation": "While requiring insurance is common, the level of coverage and the requirement for the tenant to ensure their contractors provide extensive insurance including naming the Landlord as additional insured on all policies except worker's compensation is a high bar. If the cost of obtaining these policies is prohibitive, it could be argued that the landlord is engaging in unfair or deceptive practices. This is especially true for smaller tenants with limited resources.",
+      "damages_estimate": 0,
+      "position": {
+        "boundingRect": {
+          "x1": 72.02,
+          "y1": 207.98,
+          "x2": 513.68,
+          "y2": 233.57,
+          "width": 441.65,
+          "height": 25.59,
+          "pageNumber": 9
+        },
+        "rects": [
+          {
+            "x1": 144.02,
+            "y1": 222.53,
+            "x2": 513.68,
+            "y2": 233.57,
+            "width": 369.66,
+            "height": 11.04,
+            "pageNumber": 9
+          },
+          {
+            "x1": 72.02,
+            "y1": 207.98,
+            "x2": 176.5,
+            "y2": 219.02,
+            "width": 104.47,
+            "height": 11.04,
+            "pageNumber": 9
+          }
+        ],
+        "pageHeight": 792,
+        "pageWidth": 612
+      }
+    },
+    {
+      "id": "hl-015",
+      "pageNumber": 1,
+      "color": "yellow",
+      "priority": 3,
+      "category": "Treating insurance premiums as rent and using eviction as a remedy for non-payment may not be permissible and is fact-dependent.",
+      "text": "Landlord shall have the same r ights and remedies for the non -payment by Tenant to Landlord of \namounts due on account of insurance premiums as Landlord has under this Lease for the failure of \nTenant to pay the Rent.",
+      "statute": "M.G.L. c. 186",
+      "explanation": "While adding insurance premiums as 'additional rent' is common, the legal basis to evict for non-payment of such additional rent is unclear. MGL Ch 239 defines grounds for eviction. The circumstances surrounding this could constitute a violation of 93A.",
       "damages_estimate": 0,
       "position": {
         "boundingRect": {
           "x1": 72,
-          "y1": 420,
+          "y1": 542,
           "x2": 540,
-          "y2": 485,
+          "y2": 592,
+          "width": 468,
+          "height": 50,
           "pageNumber": 1
         },
         "rects": [
           {
             "x1": 72,
-            "y1": 420,
+            "y1": 542,
             "x2": 540,
-            "y2": 440,
-            "pageNumber": 1
-          },
-          {
-            "x1": 72,
-            "y1": 440,
-            "x2": 540,
-            "y2": 460,
-            "pageNumber": 1
-          },
-          {
-            "x1": 72,
-            "y1": 460,
-            "x2": 540,
-            "y2": 485,
+            "y2": 592,
+            "width": 468,
+            "height": 50,
             "pageNumber": 1
           }
-        ]
+        ],
+        "pageHeight": 792,
+        "pageWidth": 612
       }
     },
     {
-      "id": "hl-003",
-      "pageNumber": 3,
-      "color": "yellow",
-      "priority": 2,
-      "category": "Assignment Restriction",
-      "text": "Tenant shall not assign, sublet, underlet, mortgage, pledge or encumber (collectively referred to as 'Transfer') this Lease without Landlord's prior written consent, which may be withheld in Landlord's sole discretion.",
-      "statute": "M.G.L. c. 186 §15A",
-      "explanation": "This clause gives landlord absolute discretion to deny any assignment or sublease, which could trap a tenant in an unfavorable lease with no exit strategy. Massachusetts courts generally require landlords to act reasonably when considering assignment requests, though this protection is stronger for residential than commercial leases.",
-      "damages_estimate": 0,
-      "position": {
-        "boundingRect": {
-          "x1": 72,
-          "y1": 655,
-          "x2": 540,
-          "y2": 695,
-          "pageNumber": 3
-        },
-        "rects": [
-          {
-            "x1": 72,
-            "y1": 655,
-            "x2": 540,
-            "y2": 675,
-            "pageNumber": 3
-          },
-          {
-            "x1": 72,
-            "y1": 675,
-            "x2": 540,
-            "y2": 695,
-            "pageNumber": 3
-          }
-        ]
-      }
-    },
-    {
-      "id": "hl-004",
-      "pageNumber": 5,
-      "color": "green",
-      "priority": 3,
-      "category": "Favorable Quiet Enjoyment",
-      "text": "Landlord hereby warrants and covenants that Tenant shall have peaceful and quiet use and possession of the Premises without hindrance or interruption on the part of Landlord, or by any other person(s) for whose actions Landlord is legally responsible, or by any person claiming by, through or under Landlord, except as herein provided.",
-      "statute": "M.G.L. c. 186 §14",
-      "explanation": "This is a strong quiet enjoyment clause that protects tenant's right to use the premises without interference. This covenant is implied by law in Massachusetts, but having it explicitly stated strengthens tenant's position if landlord violates this right.",
-      "damages_estimate": 0,
-      "position": {
-        "boundingRect": {
-          "x1": 72,
-          "y1": 180,
-          "x2": 540,
-          "y2": 230,
-          "pageNumber": 5
-        },
-        "rects": [
-          {
-            "x1": 72,
-            "y1": 180,
-            "x2": 540,
-            "y2": 200,
-            "pageNumber": 5
-          },
-          {
-            "x1": 72,
-            "y1": 200,
-            "x2": 540,
-            "y2": 220,
-            "pageNumber": 5
-          },
-          {
-            "x1": 72,
-            "y1": 220,
-            "x2": 540,
-            "y2": 230,
-            "pageNumber": 5
-          }
-        ]
-      }
-    },
-    {
-      "id": "hl-005",
-      "pageNumber": 2,
+      "id": "hl-016",
+      "pageNumber": 11,
       "color": "orange",
       "priority": 2,
-      "category": "Tenant Maintenance Burden",
-      "text": "Tenant shall be responsible for maintaining the Premises in good and clean condition and order at its sole expense. Without limiting the foregoing, Tenant shall keep the Premises, including, without limitation, the electrical fixtures, windows, halls, stairwells, lavatories and all other areas of the Building, the landscaping (including, without limitation, keeping the grass neat and cut and trimming of trees and bushes) in good condition",
-      "statute": "M.G.L. c. 186 §14",
-      "explanation": "This clause places extensive maintenance responsibilities on the tenant, including structural elements and landscaping that are typically landlord obligations. While permissible in commercial leases, this significantly increases tenant's operating costs and liability exposure.",
+      "category": "Landlord shirking responsibility for basic repairs after damage.",
+      "text": "If any part of the Premises is damaged by fire or other casualty or is taken by a public \nauthority and this Lease is not terminated by Landlord or Tenant as provided above, Tenant shall \nproceed with reasonable diligence to repair and restore the Premises, or what remains thereof in the \ncase of a partial taking, to its condition prior to such t aking.  Tenant acknowledges and agrees that in no \nevent shall Landlord be liable for any injury, harm or any other loss, cost, expense, demand, claim, or \nhave any obligation to repair, replace, improve, restore and/or rebuild, any damage of any kind or \nnature whatsoever to the Premises or any portion thereof caused by an eminent domain taking or by \nfire, flood or other casualty.",
+      "statute": "M.G.L. c. 186",
+      "explanation": "Requiring the tenant to repair damages without landlord contribution, even if from events the tenant didn't cause, might constitute an unfair business practice under Chapter 93A. If the damage is extensive, requiring the tenant to cover all costs could be deemed unreasonable and put the tenant in an unfair financial position, particularly if such damage affects the habitability of the premises.",
       "damages_estimate": 0,
       "position": {
         "boundingRect": {
-          "x1": 72,
-          "y1": 315,
-          "x2": 540,
-          "y2": 380,
-          "pageNumber": 2
+          "x1": 72.02,
+          "y1": 418.87,
+          "x2": 528.82,
+          "y2": 444.43,
+          "width": 456.8,
+          "height": 25.56,
+          "pageNumber": 11
         },
         "rects": [
           {
-            "x1": 72,
-            "y1": 315,
-            "x2": 540,
-            "y2": 335,
-            "pageNumber": 2
+            "x1": 363.4,
+            "y1": 433.39,
+            "x2": 528.82,
+            "y2": 444.43,
+            "width": 165.42,
+            "height": 11.04,
+            "pageNumber": 11
           },
           {
-            "x1": 72,
-            "y1": 335,
-            "x2": 540,
-            "y2": 355,
-            "pageNumber": 2
-          },
-          {
-            "x1": 72,
-            "y1": 355,
-            "x2": 540,
-            "y2": 380,
-            "pageNumber": 2
+            "x1": 72.02,
+            "y1": 418.87,
+            "x2": 273.26,
+            "y2": 429.91,
+            "width": 201.24,
+            "height": 11.04,
+            "pageNumber": 11
           }
-        ]
+        ],
+        "pageHeight": 792,
+        "pageWidth": 612
+      }
+    },
+    {
+      "id": "hl-017",
+      "pageNumber": 13,
+      "color": "yellow",
+      "priority": 3,
+      "category": "Tenant's obligation to maintain premises at termination.",
+      "text": "Tenant shall at the expiration or other termination of this Lease remove all Tenant's effects from the Premises. Tenant shall deliver the Premises to Landlord in the \ncondition in which Tenant is required to maintain the same as set forth in this Lease, reasonable wear \nand tear excepted.",
+      "statute": "M.G.L. c. 186",
+      "explanation": "This term needs clarification. What condition is the tenant required to maintain? If the tenant is responsible for major capital improvements or for repairing pre-existing conditions, then that responsibility could be challenged as an unfair or deceptive act and a violation of 93A.",
+      "damages_estimate": 0,
+      "position": {
+        "boundingRect": {
+          "x1": 72.02,
+          "y1": 196.94,
+          "x2": 517.1,
+          "y2": 222.5,
+          "width": 445.07,
+          "height": 25.56,
+          "pageNumber": 13
+        },
+        "rects": [
+          {
+            "x1": 147.6,
+            "y1": 211.46,
+            "x2": 517.1,
+            "y2": 222.5,
+            "width": 369.5,
+            "height": 11.04,
+            "pageNumber": 13
+          },
+          {
+            "x1": 72.02,
+            "y1": 196.94,
+            "x2": 97.29,
+            "y2": 207.98,
+            "width": 25.27,
+            "height": 11.04,
+            "pageNumber": 13
+          }
+        ],
+        "pageHeight": 792,
+        "pageWidth": 612
+      }
+    },
+    {
+      "id": "hl-018",
+      "pageNumber": 4,
+      "color": "green",
+      "priority": 3,
+      "category": "Provides tenant with advance notice of inspections and prevents landlord from unreasonable interference with tenant's use of the premises.",
+      "text": "Landlord shall provide Tenant with a minimum notice of twenty -four (24) hours, and not interfere unreasonably with Tenant’s use of the Premises.",
+      "statute": null,
+      "explanation": "Provides tenant with advance notice of inspections and prevents landlord from unreasonable interference with tenant's use of the premises.",
+      "damages_estimate": 0,
+      "position": {
+        "boundingRect": {
+          "x1": 72.02,
+          "y1": 82.58,
+          "x2": 538.63,
+          "y2": 108.02,
+          "width": 466.6,
+          "height": 25.44,
+          "pageNumber": 4
+        },
+        "rects": [
+          {
+            "x1": 193.55,
+            "y1": 96.98,
+            "x2": 538.63,
+            "y2": 108.02,
+            "width": 345.07,
+            "height": 11.04,
+            "pageNumber": 4
+          },
+          {
+            "x1": 72.02,
+            "y1": 82.58,
+            "x2": 137.43,
+            "y2": 93.62,
+            "width": 65.4,
+            "height": 11.04,
+            "pageNumber": 4
+          }
+        ],
+        "pageHeight": 792,
+        "pageWidth": 612
+      }
+    },
+    {
+      "id": "hl-019",
+      "pageNumber": 7,
+      "color": "green",
+      "priority": 3,
+      "category": "Limits tenant's responsibility for reasonable wear and tear and damage from fire/casualty.",
+      "text": "8.1 Permitted Uses.  Tenant shall use the Premises solely for the Permitted Uses. Tenant shall keep \nthe Premises in good order, reasonable wear and tear and damage by fire or other casualty only \nexcepted, and shall not commit or permit Tenant's servants, agents or invitees to commit waste to the \nPremises.",
+      "statute": "Common law principle that tenants are not responsible for reasonable wear and tear.",
+      "explanation": "Limits tenant's responsibility for reasonable wear and tear and damage from fire/casualty.",
+      "damages_estimate": 0,
+      "position": {
+        "boundingRect": {
+          "x1": 72.02,
+          "y1": 706.78,
+          "x2": 508.67,
+          "y2": 717.82,
+          "width": 436.65,
+          "height": 11.04,
+          "pageNumber": 7
+        },
+        "rects": [
+          {
+            "x1": 72.02,
+            "y1": 706.78,
+            "x2": 508.67,
+            "y2": 717.82,
+            "width": 436.65,
+            "height": 11.04,
+            "pageNumber": 7
+          }
+        ],
+        "pageHeight": 792,
+        "pageWidth": 612
+      }
+    },
+    {
+      "id": "hl-020",
+      "pageNumber": 13,
+      "color": "green",
+      "priority": 3,
+      "category": "This clause guarantees the tenant's right to quiet enjoyment of the premises, protecting them from unwarranted interference by the landlord.",
+      "text": "Landlord hereby warrants and covenants that Tenant shall have peaceful and \nquiet use and possession of the Premises without hindrance or interruption on the part  of Landlord, or \nby any other person(s) for whose actions Landlord is legally responsible, or by any person claiming by, \nthrough or under Landlord, except as herein provided.",
+      "statute": "Implied Covenant of Quiet Enjoyment",
+      "explanation": "This clause guarantees the tenant's right to quiet enjoyment of the premises, protecting them from unwarranted interference by the landlord.",
+      "damages_estimate": 0,
+      "position": {
+        "boundingRect": {
+          "x1": 72.02,
+          "y1": 388.39,
+          "x2": 536.12,
+          "y2": 413.95,
+          "width": 464.09,
+          "height": 25.56,
+          "pageNumber": 13
+        },
+        "rects": [
+          {
+            "x1": 191.38,
+            "y1": 402.91,
+            "x2": 536.12,
+            "y2": 413.95,
+            "width": 344.74,
+            "height": 11.04,
+            "pageNumber": 13
+          },
+          {
+            "x1": 72.02,
+            "y1": 388.39,
+            "x2": 183.63,
+            "y2": 399.43,
+            "width": 111.6,
+            "height": 11.04,
+            "pageNumber": 13
+          }
+        ],
+        "pageHeight": 792,
+        "pageWidth": 612
+      }
+    },
+    {
+      "id": "hl-021",
+      "pageNumber": 13,
+      "color": "green",
+      "priority": 3,
+      "category": "This clause dictates a reasonable standard for Landlord access, including reasonable notice, which protects Tenant from unnecessary interruptions.",
+      "text": "Landlord or its agents may, at reasonable times and wit hout interfering with \nTenant's business operations, enter the Premises from time to time to make repairs or to inspect the \nPremises.  Landlord shall give Tenant a minimum of twenty -four (24) hours’ notice for such visits, \nprovided however that Landlord may  enter the Premises at any hour and without prior notice in the \ncase of an emergency affecting the Premises.",
+      "statute": "Common law standards of landlord entry.",
+      "explanation": "This clause dictates a reasonable standard for Landlord access, including reasonable notice, which protects Tenant from unnecessary interruptions.",
+      "damages_estimate": 0,
+      "position": {
+        "boundingRect": {
+          "x1": 72.02,
+          "y1": 299.93,
+          "x2": 529.27,
+          "y2": 325.49,
+          "width": 457.25,
+          "height": 25.56,
+          "pageNumber": 13
+        },
+        "rects": [
+          {
+            "x1": 188.36,
+            "y1": 314.45,
+            "x2": 529.27,
+            "y2": 325.49,
+            "width": 340.91,
+            "height": 11.04,
+            "pageNumber": 13
+          },
+          {
+            "x1": 72.02,
+            "y1": 299.93,
+            "x2": 204.36,
+            "y2": 310.97,
+            "width": 132.34,
+            "height": 11.04,
+            "pageNumber": 13
+          }
+        ],
+        "pageHeight": 792,
+        "pageWidth": 612
+      }
+    },
+    {
+      "id": "hl-022",
+      "pageNumber": 11,
+      "color": "green",
+      "priority": 3,
+      "category": "Allows termination by either party if casualty or taking interferes with intended use.",
+      "text": "(b) If the Premises or any portion thereof shall be destroyed or damaged by fire or other casualty, \nor taken by any public or quasi -public agency or authority other than Landlord by right of eminent \ndomain, and the casualty/taking unreasonably interferes with the use of the Premises for the Permitted \nUses in a manner comparable to such use prior to such casualty/condemnation, this Lea se shall \nterminate at the election of either Landlord or Tenant.  Any such termination shall be effective thirty \n(30) days after the date of notice thereof.",
+      "statute": "Common law and contract principles.",
+      "explanation": "Allows termination by either party if casualty or taking interferes with intended use.",
+      "damages_estimate": 0,
+      "position": {
+        "boundingRect": {
+          "x1": 72.02,
+          "y1": 433.39,
+          "x2": 447.96,
+          "y2": 444.43,
+          "width": 375.94,
+          "height": 11.04,
+          "pageNumber": 11
+        },
+        "rects": [
+          {
+            "x1": 72.02,
+            "y1": 433.39,
+            "x2": 447.96,
+            "y2": 444.43,
+            "width": 375.94,
+            "height": 11.04,
+            "pageNumber": 11
+          }
+        ],
+        "pageHeight": 792,
+        "pageWidth": 612
+      }
+    },
+    {
+      "id": "hl-023",
+      "pageNumber": 13,
+      "color": "green",
+      "priority": 3,
+      "category": "This clause ensures the tenant's right to quiet enjoyment of the premises, protecting them from undue disturbance by the landlord or others.",
+      "text": "Landlord hereby warrants and covenants that Tenant shall have peaceful and \nquiet use and possession of the Premises without hindrance or interruption on the part  of Landlord, or \nby any other person(s) for whose actions Landlord is legally responsible, or by any person claiming by, \nthrough or under Landlord, except as herein provided.",
+      "statute": "Implied Covenant of Quiet Enjoyment under MA law",
+      "explanation": "This clause ensures the tenant's right to quiet enjoyment of the premises, protecting them from undue disturbance by the landlord or others.",
+      "damages_estimate": 0,
+      "position": {
+        "boundingRect": {
+          "x1": 72.02,
+          "y1": 388.39,
+          "x2": 536.12,
+          "y2": 413.95,
+          "width": 464.09,
+          "height": 25.56,
+          "pageNumber": 13
+        },
+        "rects": [
+          {
+            "x1": 191.38,
+            "y1": 402.91,
+            "x2": 536.12,
+            "y2": 413.95,
+            "width": 344.74,
+            "height": 11.04,
+            "pageNumber": 13
+          },
+          {
+            "x1": 72.02,
+            "y1": 388.39,
+            "x2": 183.63,
+            "y2": 399.43,
+            "width": 111.6,
+            "height": 11.04,
+            "pageNumber": 13
+          }
+        ],
+        "pageHeight": 792,
+        "pageWidth": 612
+      }
+    },
+    {
+      "id": "hl-024",
+      "pageNumber": 13,
+      "color": "green",
+      "priority": 3,
+      "category": "This clause limits the landlord's right of entry and requires advance notice (except in emergencies), protecting the tenant's privacy and business operations.",
+      "text": "Landlord or its agents may, at reasonable times and wit hout interfering with \nTenant's business operations, enter the Premises from time to time to make repairs or to inspect the \nPremises.  Landlord shall give Tenant a minimum of twenty -four (24) hours’ notice for such visits, \nprovided however that Landlord may  enter the Premises at any hour and without prior notice in the \ncase of an emergency affecting the Premises.",
+      "statute": "Chapter 186, Section 15B addresses landlord entry",
+      "explanation": "This clause limits the landlord's right of entry and requires advance notice (except in emergencies), protecting the tenant's privacy and business operations.",
+      "damages_estimate": 0,
+      "position": {
+        "boundingRect": {
+          "x1": 72.02,
+          "y1": 299.93,
+          "x2": 529.27,
+          "y2": 325.49,
+          "width": 457.25,
+          "height": 25.56,
+          "pageNumber": 13
+        },
+        "rects": [
+          {
+            "x1": 188.36,
+            "y1": 314.45,
+            "x2": 529.27,
+            "y2": 325.49,
+            "width": 340.91,
+            "height": 11.04,
+            "pageNumber": 13
+          },
+          {
+            "x1": 72.02,
+            "y1": 299.93,
+            "x2": 204.36,
+            "y2": 310.97,
+            "width": 132.34,
+            "height": 11.04,
+            "pageNumber": 13
+          }
+        ],
+        "pageHeight": 792,
+        "pageWidth": 612
       }
     }
-  ]
+  ],
+  "document_info": {
+    "total_characters": 40191,
+    "total_chunks": 4,
+    "analysis_date": "2025-11-08T14:40:53.061266"
+  }
 }
