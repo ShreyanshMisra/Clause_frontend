@@ -1,0 +1,219 @@
+{
+  "documentId": "1",
+  "pdfUrl": "/sample-lease.pdf",
+  "analysisSummary": {
+    "status": "complete",
+    "summaryText": "Analysis Complete — 5 key issues found. This commercial lease contains some concerning indemnification language and lacks certain tenant protections, but also includes favorable quiet enjoyment provisions.",
+    "potential_recovery": 0
+  },
+  "highlights": [
+    {
+      "id": "hl-001",
+      "pageNumber": 3,
+      "color": "orange",
+      "priority": 2,
+      "category": "Broad Indemnification Clause",
+      "text": "Tenant shall, during the term hereof, assume and maintain exclusive control of the Premises and defend, indemnify and save harmless Landlord from and against all claims, expenses or liability of whatever nature arising from any act, omission or negligence of Tenant, Tenant's contractors, agents, employees, customers, and invitees",
+      "statute": "M.G.L. c. 186 §15",
+      "explanation": "This indemnification clause is extremely broad and could hold the tenant liable even for injuries caused partially by landlord's negligence or property defects. Massachusetts courts may limit overly broad indemnification clauses that attempt to shield landlords from their own negligence.",
+      "damages_estimate": 0,
+      "position": {
+        "boundingRect": {
+          "x1": 72,
+          "y1": 245,
+          "x2": 540,
+          "y2": 310,
+          "pageNumber": 3
+        },
+        "rects": [
+          {
+            "x1": 72,
+            "y1": 245,
+            "x2": 540,
+            "y2": 265,
+            "pageNumber": 3
+          },
+          {
+            "x1": 72,
+            "y1": 265,
+            "x2": 540,
+            "y2": 285,
+            "pageNumber": 3
+          },
+          {
+            "x1": 72,
+            "y1": 285,
+            "x2": 540,
+            "y2": 310,
+            "pageNumber": 3
+          }
+        ]
+      }
+    },
+    {
+      "id": "hl-002",
+      "pageNumber": 1,
+      "color": "red",
+      "priority": 1,
+      "category": "AS-IS Premises Condition",
+      "text": "The Premises are delivered to Tenant and Tenant accepts the Premises in their present condition, 'AS IS,' it being agreed that Tenant has had an opportunity to examine and inspect the Premises in all respects, that Landlord has made no representations or warranties of any kind with respect thereto, and that Landlord shall have no obligation to do any work on, or make any improvements to the Premises or the condition thereof.",
+      "statute": "M.G.L. c. 186 §19",
+      "explanation": "While 'AS-IS' clauses are generally enforceable for commercial leases, this language completely disclaims all landlord warranties and obligations. This shifts significant risk to the tenant, who may be responsible for costly repairs of pre-existing conditions, including potentially hazardous code violations.",
+      "damages_estimate": 0,
+      "position": {
+        "boundingRect": {
+          "x1": 72,
+          "y1": 420,
+          "x2": 540,
+          "y2": 485,
+          "pageNumber": 1
+        },
+        "rects": [
+          {
+            "x1": 72,
+            "y1": 420,
+            "x2": 540,
+            "y2": 440,
+            "pageNumber": 1
+          },
+          {
+            "x1": 72,
+            "y1": 440,
+            "x2": 540,
+            "y2": 460,
+            "pageNumber": 1
+          },
+          {
+            "x1": 72,
+            "y1": 460,
+            "x2": 540,
+            "y2": 485,
+            "pageNumber": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "hl-003",
+      "pageNumber": 3,
+      "color": "yellow",
+      "priority": 2,
+      "category": "Assignment Restriction",
+      "text": "Tenant shall not assign, sublet, underlet, mortgage, pledge or encumber (collectively referred to as 'Transfer') this Lease without Landlord's prior written consent, which may be withheld in Landlord's sole discretion.",
+      "statute": "M.G.L. c. 186 §15A",
+      "explanation": "This clause gives landlord absolute discretion to deny any assignment or sublease, which could trap a tenant in an unfavorable lease with no exit strategy. Massachusetts courts generally require landlords to act reasonably when considering assignment requests, though this protection is stronger for residential than commercial leases.",
+      "damages_estimate": 0,
+      "position": {
+        "boundingRect": {
+          "x1": 72,
+          "y1": 655,
+          "x2": 540,
+          "y2": 695,
+          "pageNumber": 3
+        },
+        "rects": [
+          {
+            "x1": 72,
+            "y1": 655,
+            "x2": 540,
+            "y2": 675,
+            "pageNumber": 3
+          },
+          {
+            "x1": 72,
+            "y1": 675,
+            "x2": 540,
+            "y2": 695,
+            "pageNumber": 3
+          }
+        ]
+      }
+    },
+    {
+      "id": "hl-004",
+      "pageNumber": 5,
+      "color": "green",
+      "priority": 3,
+      "category": "Favorable Quiet Enjoyment",
+      "text": "Landlord hereby warrants and covenants that Tenant shall have peaceful and quiet use and possession of the Premises without hindrance or interruption on the part of Landlord, or by any other person(s) for whose actions Landlord is legally responsible, or by any person claiming by, through or under Landlord, except as herein provided.",
+      "statute": "M.G.L. c. 186 §14",
+      "explanation": "This is a strong quiet enjoyment clause that protects tenant's right to use the premises without interference. This covenant is implied by law in Massachusetts, but having it explicitly stated strengthens tenant's position if landlord violates this right.",
+      "damages_estimate": 0,
+      "position": {
+        "boundingRect": {
+          "x1": 72,
+          "y1": 180,
+          "x2": 540,
+          "y2": 230,
+          "pageNumber": 5
+        },
+        "rects": [
+          {
+            "x1": 72,
+            "y1": 180,
+            "x2": 540,
+            "y2": 200,
+            "pageNumber": 5
+          },
+          {
+            "x1": 72,
+            "y1": 200,
+            "x2": 540,
+            "y2": 220,
+            "pageNumber": 5
+          },
+          {
+            "x1": 72,
+            "y1": 220,
+            "x2": 540,
+            "y2": 230,
+            "pageNumber": 5
+          }
+        ]
+      }
+    },
+    {
+      "id": "hl-005",
+      "pageNumber": 2,
+      "color": "orange",
+      "priority": 2,
+      "category": "Tenant Maintenance Burden",
+      "text": "Tenant shall be responsible for maintaining the Premises in good and clean condition and order at its sole expense. Without limiting the foregoing, Tenant shall keep the Premises, including, without limitation, the electrical fixtures, windows, halls, stairwells, lavatories and all other areas of the Building, the landscaping (including, without limitation, keeping the grass neat and cut and trimming of trees and bushes) in good condition",
+      "statute": "M.G.L. c. 186 §14",
+      "explanation": "This clause places extensive maintenance responsibilities on the tenant, including structural elements and landscaping that are typically landlord obligations. While permissible in commercial leases, this significantly increases tenant's operating costs and liability exposure.",
+      "damages_estimate": 0,
+      "position": {
+        "boundingRect": {
+          "x1": 72,
+          "y1": 315,
+          "x2": 540,
+          "y2": 380,
+          "pageNumber": 2
+        },
+        "rects": [
+          {
+            "x1": 72,
+            "y1": 315,
+            "x2": 540,
+            "y2": 335,
+            "pageNumber": 2
+          },
+          {
+            "x1": 72,
+            "y1": 335,
+            "x2": 540,
+            "y2": 355,
+            "pageNumber": 2
+          },
+          {
+            "x1": 72,
+            "y1": 355,
+            "x2": 540,
+            "y2": 380,
+            "pageNumber": 2
+          }
+        ]
+      }
+    }
+  ]
+}

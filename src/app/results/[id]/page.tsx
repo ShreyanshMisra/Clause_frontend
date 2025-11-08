@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SparklesIcon } from "@/components/Layouts/sidebar/icons";
 import Link from "next/link";
 import { use } from "react";
 import AnalysisPreviewModal from "@/components/Modals/AnalysisPreviewModal";
 import GenerateLetterModal from "@/components/Modals/GenerateLetterModal";
 import CreateCaseModal from "@/components/Modals/CreateCaseModal";
+import { fetchAnalysis, type Highlight } from "@/utils/fetchAnalysis";
 
 export default function ResultsPage({
   params,
@@ -16,6 +17,7 @@ export default function ResultsPage({
   const [analysisModalOpen, setAnalysisModalOpen] = useState(false);
   const [letterModalOpen, setLetterModalOpen] = useState(false);
   const [caseModalOpen, setCaseModalOpen] = useState(false);
+  const [keyIssues, setKeyIssues] = useState<Highlight[]>([]);
 
   // Mock results data - replace with actual data fetching based on params.id
   // In production, fetch from API: const results = await fetchResults(params.id);
@@ -182,6 +184,23 @@ export default function ResultsPage({
   const keyResults = detail.keyResults;
   const findingsPreview = detail.findingsPreview;
 
+  // Fetch key issues from analysis data
+  useEffect(() => {
+    const loadKeyIssues = async () => {
+      try {
+        const analysisData = await fetchAnalysis(id);
+        // Get top 3 issues sorted by priority
+        const topIssues = analysisData.highlights
+          .sort((a, b) => a.priority - b.priority)
+          .slice(0, 3);
+        setKeyIssues(topIssues);
+      } catch (error) {
+        console.error("Error loading key issues:", error);
+      }
+    };
+    loadKeyIssues();
+  }, [id]);
+
   const nextSteps = [
     {
       icon: "🔍",
@@ -303,34 +322,89 @@ export default function ResultsPage({
           Key Issues Found
         </h2>
         <div className="space-y-3">
-          {findingsPreview.map((finding) => (
-            <div
-              key={finding.id}
-              className="border-peach-200/50 hover:border-coral-300 hover:shadow-soft-2 dark:border-coral-500/20 dark:hover:border-coral-500/40 flex items-start justify-between rounded-2xl border bg-white/40 p-4 backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] dark:bg-white/5"
-            >
-              <div className="flex-1">
-                <div className="mb-2 flex items-center gap-3">
-                  <h3 className="font-bold text-dark dark:text-white">
-                    {finding.title}
-                  </h3>
-                  <span
-                    className={`rounded-full px-2.5 py-1 text-xs font-semibold ${finding.severityColor}`}
+          {keyIssues.length > 0 ? (
+            keyIssues.map((issue) => {
+              const severityColor =
+                issue.color === "red"
+                  ? "severity-high"
+                  : issue.color === "yellow"
+                    ? "severity-medium"
+                    : "severity-low";
+              const severityLabel =
+                issue.color === "red"
+                  ? "high"
+                  : issue.color === "yellow"
+                    ? "medium"
+                    : "low";
+
+              return (
+                <div
+                  key={issue.id}
+                  className="border-peach-200/50 hover:border-coral-300 hover:shadow-soft-2 dark:border-coral-500/20 dark:hover:border-coral-500/40 flex items-start justify-between rounded-2xl border bg-white/40 p-4 backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] dark:bg-white/5"
+                >
+                  <div className="flex-1">
+                    <div className="mb-2 flex items-center gap-3">
+                      <h3 className="font-bold text-dark dark:text-white">
+                        {issue.category}
+                      </h3>
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${severityColor}`}
+                      >
+                        {severityLabel.toUpperCase()}
+                      </span>
+                    </div>
+                    <p className="text-sm text-dark-5 dark:text-gray-400 mb-2">
+                      {issue.text.length > 100
+                        ? issue.text.substring(0, 100) + "..."
+                        : issue.text}
+                    </p>
+                    {issue.statute && (
+                      <p className="text-xs text-dark-5 dark:text-gray-500 mt-1">
+                        <span className="font-semibold">Legal Reference:</span>{" "}
+                        {issue.statute}
+                      </p>
+                    )}
+                  </div>
+                  <Link
+                    href={`/analysis?documentId=${results.documentId}#${issue.id}`}
+                    className="text-coral-600 dark:text-coral-400 ml-4 flex-shrink-0 text-sm font-semibold hover:underline"
                   >
-                    {finding.severity.toUpperCase()}
-                  </span>
+                    Learn more →
+                  </Link>
                 </div>
-                <p className="text-sm text-dark-5 dark:text-gray-400">
-                  {finding.summary}
-                </p>
-              </div>
-              <Link
-                href={`/analysis?documentId=${results.documentId}&issueId=${finding.id}`}
-                className="text-coral-600 dark:text-coral-400 ml-4 flex-shrink-0 text-sm font-semibold hover:underline"
+              );
+            })
+          ) : (
+            // Fallback to static data while loading
+            findingsPreview.map((finding) => (
+              <div
+                key={finding.id}
+                className="border-peach-200/50 hover:border-coral-300 hover:shadow-soft-2 dark:border-coral-500/20 dark:hover:border-coral-500/40 flex items-start justify-between rounded-2xl border bg-white/40 p-4 backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] dark:bg-white/5"
               >
-                Learn more →
-              </Link>
-            </div>
-          ))}
+                <div className="flex-1">
+                  <div className="mb-2 flex items-center gap-3">
+                    <h3 className="font-bold text-dark dark:text-white">
+                      {finding.title}
+                    </h3>
+                    <span
+                      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${finding.severityColor}`}
+                    >
+                      {finding.severity.toUpperCase()}
+                    </span>
+                  </div>
+                  <p className="text-sm text-dark-5 dark:text-gray-400">
+                    {finding.summary}
+                  </p>
+                </div>
+                <Link
+                  href={`/analysis?documentId=${results.documentId}&issueId=${finding.id}`}
+                  className="text-coral-600 dark:text-coral-400 ml-4 flex-shrink-0 text-sm font-semibold hover:underline"
+                >
+                  Learn more →
+                </Link>
+              </div>
+            ))
+          )}
         </div>
       </div>
 

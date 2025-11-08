@@ -1,0 +1,80 @@
+{
+  "documentId": "1",
+  "pdfUrl": "/sample-lease.pdf",
+  "analysisSummary": {
+    "status": "complete",
+    "summaryText": "Analysis Complete — 3 key issues found.",
+    "potential_recovery": 3000
+  },
+  "highlights": [
+    {
+      "id": "hl-001",
+      "pageNumber": 1,
+      "color": "red",
+      "priority": 1,
+      "category": "Illegal Deposit Clause",
+      "text": "Tenant agrees that the security deposit is non-refundable under any circumstances.",
+      "statute": "M.G.L. c.186 §15B",
+      "explanation": "Massachusetts law does not permit labeling security deposits as non-refundable.",
+      "damages_estimate": 1500,
+      "position": {
+        "boundingRect": {
+          "x1": 72,
+          "y1": 680,
+          "x2": 520,
+          "y2": 700,
+          "pageNumber": 1
+        },
+        "rects": [
+          { "x1": 72, "y1": 680, "x2": 520, "y2": 700, "pageNumber": 1 }
+        ]
+      }
+    },
+    {
+      "id": "hl-002",
+      "pageNumber": 2,
+      "color": "yellow",
+      "priority": 2,
+      "category": "Early Termination Clause",
+      "text": "Landlord may terminate lease for any reason with 15 days notice.",
+      "statute": null,
+      "explanation": "This clause is unusually one-sided and may be unenforceable depending on local ordinances.",
+      "damages_estimate": null,
+      "position": {
+        "boundingRect": {
+          "x1": 80,
+          "y1": 540,
+          "x2": 520,
+          "y2": 565,
+          "pageNumber": 2
+        },
+        "rects": [
+          { "x1": 80, "y1": 540, "x2": 520, "y2": 565, "pageNumber": 2 }
+        ]
+      }
+    },
+    {
+      "id": "hl-003",
+      "pageNumber": 3,
+      "color": "green",
+      "priority": 3,
+      "category": "Favorable Maintenance Clause",
+      "text": "Landlord will cover all appliance repairs during tenancy.",
+      "statute": null,
+      "explanation": "This clause is favorable to the tenant and reduces out-of-pocket risk.",
+      "damages_estimate": null,
+      "position": {
+        "boundingRect": {
+          "x1": 72,
+          "y1": 420,
+          "x2": 480,
+          "y2": 440,
+          "pageNumber": 3
+        },
+        "rects": [
+          { "x1": 72, "y1": 420, "x2": 480, "y2": 440, "pageNumber": 3 }
+        ]
+      }
+    }
+  ]
+}

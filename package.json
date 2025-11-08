@@ -15,19 +15,29 @@
     "dayjs": "^1.11.13",
     "flatpickr": "^4.6.13",
     "jsvectormap": "^1.6.0",
-    "next": "15.1.6",
+    "next": "^15.5.6",
     "next-themes": "^0.4.4",
     "nextjs-toploader": "^3.7.15",
+    "pdfjs-dist": "4.4.168",
     "react": "19.0.0",
     "react-apexcharts": "^1.7.0",
     "react-dom": "19.0.0",
+    "react-pdf": "^10.2.0",
+    "react-pdf-highlighter": "^8.0.0-rc.0",
     "tailwind-merge": "^2.6.0"
+  },
+  "overrides": {
+    "pdfjs-dist": "4.4.168"
+  },
+  "resolutions": {
+    "pdfjs-dist": "4.4.168"
   },
   "devDependencies": {
     "@types/node": "^22",
     "@types/react": "19.0.8",
     "@types/react-dom": "19.0.3",
     "autoprefixer": "^10.4.20",
+    "copy-webpack-plugin": "^13.0.1",
     "eslint": "^9",
     "eslint-config-next": "15.1.6",
     "postcss": "^8",

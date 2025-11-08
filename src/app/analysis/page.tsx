@@ -5,6 +5,12 @@ import { SparklesIcon } from "@/components/Layouts/sidebar/icons";
 import { useSearchParams } from "next/navigation";
 import GenerateLetterModal from "@/components/Modals/GenerateLetterModal";
 import CreateCaseModal from "@/components/Modals/CreateCaseModal";
+import dynamic from "next/dynamic";
+
+const PdfAnalysisViewer = dynamic(
+  () => import("@/components/PdfAnalysisViewer").then((mod) => ({ default: mod.PdfAnalysisViewer })),
+  { ssr: false, loading: () => <div className="flex items-center justify-center h-screen"><div className="text-center"><div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div><p className="mt-4">Loading PDF viewer...</p></div></div> }
+);
 
 export default function AnalysisPage() {
   const searchParams = useSearchParams();
@@ -142,30 +148,13 @@ export default function AnalysisPage() {
             <h2 className="mb-4 text-lg font-bold text-dark dark:text-white">
               Document Viewer
             </h2>
-            <div className="border-peach-200/50 to-peach-50/30 shadow-soft-2 dark:border-coral-500/20 dark:to-coral-500/5 min-h-[600px] rounded-2xl border bg-gradient-to-br from-white p-10 dark:from-dark-2">
-              <div className="prose dark:prose-invert max-w-none">
-                <p className="mb-4 text-dark dark:text-gray-300">
-                  This is a sample lease document. In the full version, risky
-                  clauses would be{" "}
-                  <span className="decoration-coral-400 dark:decoration-coral-500 cursor-pointer rounded-lg bg-yellow-200/60 px-2 py-1 underline decoration-2 hover:bg-yellow-300/80 dark:bg-yellow-900/30">
-                    highlighted
-                  </span>{" "}
-                  and clickable.
-                </p>
-                <p className="mb-4 text-dark dark:text-gray-300">
-                  <strong>Security Deposit:</strong> Tenant agrees to pay a
-                  security deposit of $2,500 upon execution of this lease. The
-                  deposit will be held in an interest-bearing account.
-                </p>
-                <p className="mb-4 text-dark dark:text-gray-300">
-                  <strong>Late Fees:</strong> Tenant agrees to pay a late fee of
-                  $75 for any rent payment received after the 5th of the month.
-                </p>
-                <p className="mb-4 text-dark dark:text-gray-300">
-                  <strong>Administrative Fee:</strong> Tenant agrees to pay a
-                  non-refundable administrative fee of $500 at move-in.
-                </p>
-              </div>
+            <div className="rounded-2xl overflow-hidden min-h-[600px] bg-white dark:bg-dark-2">
+              <PdfAnalysisViewer 
+                documentId={documentId} 
+                onSelectIssue={(highlightId) => {
+                  console.log("Selected highlight:", highlightId);
+                }}
+              />
             </div>
           </div>
         </div>
