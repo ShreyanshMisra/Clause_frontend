@@ -7,67 +7,37 @@ import {
 } from "@/components/ui/dropdown";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { BellIcon } from "./icons";
+import { mockNotifications } from "@/data/mockData";
 
-const notificationList = [
-  {
-    image: "/images/user/user-15.png",
-    title: "Piter Joined the Team!",
-    subTitle: "Congratulate him",
-  },
-  {
-    image: "/images/user/user-03.png",
-    title: "New message",
-    subTitle: "Devid sent a new message",
-  },
-  {
-    image: "/images/user/user-26.png",
-    title: "New Payment received",
-    subTitle: "Check your earnings",
-  },
-  {
-    image: "/images/user/user-28.png",
-    title: "Jolly completed tasks",
-    subTitle: "Assign new task",
-  },
-  {
-    image: "/images/user/user-27.png",
-    title: "Roman Joined the Team!",
-    subTitle: "Congratulate him",
-  },
-];
+// Get first 5 notifications for dropdown
+const notificationList = mockNotifications.slice(0, 5);
 
 export function Notification() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isDotVisible, setIsDotVisible] = useState(true);
   const isMobile = useIsMobile();
+
+  const unreadCount = mockNotifications.filter((n) => !n.read).length;
 
   return (
     <Dropdown
       isOpen={isOpen}
       setIsOpen={(open) => {
         setIsOpen(open);
-
-        if (setIsDotVisible) setIsDotVisible(false);
       }}
     >
       <DropdownTrigger
-        className="grid size-12 place-items-center rounded-full border bg-gray-2 text-dark outline-none hover:text-primary focus-visible:border-primary focus-visible:text-primary dark:border-dark-4 dark:bg-dark-3 dark:text-white dark:focus-visible:border-primary"
+        className="glass hover:shadow-glow-peach border-peach-200/50 focus-visible:border-coral-400 focus-visible:text-coral-500 dark:border-coral-500/30 dark:focus-visible:border-coral-400 grid size-12 place-items-center rounded-full border text-dark outline-none transition-all hover:scale-110 dark:text-white"
         aria-label="View Notifications"
       >
         <span className="relative">
           <BellIcon />
 
-          {isDotVisible && (
-            <span
-              className={cn(
-                "absolute right-0 top-0 z-1 size-2 rounded-full bg-red-light ring-2 ring-gray-2 dark:ring-dark-3",
-              )}
-            >
-              <span className="absolute inset-0 -z-1 animate-ping rounded-full bg-red-light opacity-75" />
+          {unreadCount > 0 && (
+            <span className="from-coral-500 to-peach-500 absolute -right-1 -top-1 z-10 flex size-5 items-center justify-center rounded-full bg-gradient-to-br text-xs font-bold text-white ring-2 ring-white dark:ring-dark-3">
+              {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
         </span>
@@ -75,51 +45,82 @@ export function Notification() {
 
       <DropdownContent
         align={isMobile ? "end" : "center"}
-        className="border border-stroke bg-white px-3.5 py-3 shadow-md dark:border-dark-3 dark:bg-gray-dark min-[350px]:min-w-[20rem]"
+        className="dark:border-coral-500/20 min-w-[20rem] rounded-3xl border border-white/60 bg-white/20 px-3.5 py-3 backdrop-blur-[40px] backdrop-brightness-[1.1] backdrop-saturate-[200%] dark:bg-white/5 dark:backdrop-brightness-[0.75]"
+        style={{
+          isolation: "isolate",
+        }}
       >
         <div className="mb-1 flex items-center justify-between px-2 py-1.5">
-          <span className="text-lg font-medium text-dark dark:text-white">
+          <span className="text-lg font-bold text-dark dark:text-white">
             Notifications
           </span>
-          <span className="rounded-md bg-primary px-[9px] py-0.5 text-xs font-medium text-white">
-            5 new
-          </span>
+          {unreadCount > 0 && (
+            <span className="shadow-glow-coral rounded-full bg-gradient-primary px-3 py-1 text-xs font-bold text-white">
+              {unreadCount} new
+            </span>
+          )}
         </div>
 
-        <ul className="mb-3 max-h-[23rem] space-y-1.5 overflow-y-auto">
-          {notificationList.map((item, index) => (
-            <li key={index} role="menuitem">
-              <Link
-                href="#"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-4 rounded-lg px-2 py-1.5 outline-none hover:bg-gray-2 focus-visible:bg-gray-2 dark:hover:bg-dark-3 dark:focus-visible:bg-dark-3"
-              >
-                <Image
-                  src={item.image}
-                  className="size-14 rounded-full object-cover"
-                  width={200}
-                  height={200}
-                  alt="User"
-                />
-
-                <div>
-                  <strong className="block text-sm font-medium text-dark dark:text-white">
-                    {item.title}
-                  </strong>
-
-                  <span className="truncate text-sm font-medium text-dark-5 dark:text-dark-6">
-                    {item.subTitle}
-                  </span>
-                </div>
-              </Link>
+        <ul className="custom-scrollbar mb-3 max-h-[23rem] space-y-2 overflow-y-auto">
+          {notificationList.length === 0 ? (
+            <li className="px-2 py-4 text-center text-sm text-dark-5 dark:text-gray-400">
+              No notifications
             </li>
-          ))}
+          ) : (
+            notificationList.map((notification) => (
+              <li key={notification.id} role="menuitem">
+                <Link
+                  href={notification.link}
+                  onClick={() => setIsOpen(false)}
+                  className={cn(
+                    "hover:shadow-soft-2 flex items-start gap-3 rounded-2xl p-3 outline-none transition-all hover:brightness-110",
+                    "border border-transparent",
+                    !notification.read &&
+                      "border-coral-300/50 bg-coral-50/20 dark:border-coral-500/30 dark:bg-coral-900/10",
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "shadow-soft-1 flex-shrink-0 rounded-xl bg-gradient-to-br p-2",
+                      notification.color,
+                    )}
+                  >
+                    <span className="text-lg">{notification.icon}</span>
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-1 flex items-start justify-between gap-2">
+                      <strong
+                        className={cn(
+                          "block flex-1 text-sm font-bold text-dark dark:text-white",
+                          notification.read && "opacity-70",
+                        )}
+                      >
+                        {notification.title}
+                      </strong>
+                      {!notification.read && (
+                        <div className="bg-coral-500 dark:bg-coral-400 size-2 flex-shrink-0 rounded-full" />
+                      )}
+                    </div>
+
+                    <p className="mb-1 truncate text-xs text-dark-5 dark:text-gray-400">
+                      {notification.message}
+                    </p>
+
+                    <span className="text-xs font-medium text-dark-5 dark:text-gray-400">
+                      {notification.time}
+                    </span>
+                  </div>
+                </Link>
+              </li>
+            ))
+          )}
         </ul>
 
         <Link
-          href="#"
+          href="/notifications"
           onClick={() => setIsOpen(false)}
-          className="block rounded-lg border border-primary p-2 text-center text-sm font-medium tracking-wide text-primary outline-none transition-colors hover:bg-blue-light-5 focus:bg-blue-light-5 focus:text-primary focus-visible:border-primary dark:border-dark-3 dark:text-dark-6 dark:hover:border-dark-5 dark:hover:bg-dark-3 dark:hover:text-dark-7 dark:focus-visible:border-dark-5 dark:focus-visible:bg-dark-3 dark:focus-visible:text-dark-7"
+          className="btn-gradient focus-visible:ring-coral-400 block rounded-full p-2.5 text-center text-sm font-bold text-white outline-none transition-all hover:scale-105 focus-visible:ring-2"
         >
           See all notifications
         </Link>
