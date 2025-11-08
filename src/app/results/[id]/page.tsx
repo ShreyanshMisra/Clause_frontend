@@ -208,7 +208,7 @@ export default function ResultsPage({
       description:
         "See a full breakdown of every issue we found and what you can do about it",
       action: "View Analysis",
-      link: `/analysis?documentId=${results.documentId}`,
+      onClick: () => setAnalysisModalOpen(true),
     },
     {
       icon: "✉️",
@@ -216,7 +216,7 @@ export default function ResultsPage({
       description:
         "Create a professional letter ready to send to your landlord",
       action: "Generate Letter",
-      link: "#",
+      onClick: () => setLetterModalOpen(true),
     },
     {
       icon: "📂",
@@ -224,7 +224,7 @@ export default function ResultsPage({
       description:
         "Keep track of your case, save documents, and monitor your recovery",
       action: "Create Case",
-      link: "#",
+      onClick: () => setCaseModalOpen(true),
     },
   ];
 
@@ -415,9 +415,9 @@ export default function ResultsPage({
         </h2>
         <div className="grid gap-4 md:grid-cols-3">
           {nextSteps.map((step, idx) => (
-            <Link
+            <button
               key={idx}
-              href={step.link}
+              onClick={step.onClick}
               className="glass-card group cursor-pointer text-left transition-all duration-300 hover:scale-105"
             >
               <div className="from-peach-400 to-coral-400 shadow-soft-2 group-hover:shadow-glow-peach mb-4 inline-flex rounded-2xl bg-gradient-to-br p-3">
@@ -447,7 +447,7 @@ export default function ResultsPage({
                   />
                 </svg>
               </div>
-            </Link>
+            </button>
           ))}
         </div>
       </div>

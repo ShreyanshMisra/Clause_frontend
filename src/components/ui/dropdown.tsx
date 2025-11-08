@@ -77,12 +77,14 @@ type DropdownContentProps = {
   align?: "start" | "end" | "center";
   className?: string;
   children: React.ReactNode;
+  style?: React.CSSProperties;
 };
 
 export function DropdownContent({
   children,
   align = "center",
   className,
+  style,
 }: DropdownContentProps) {
   const { isOpen, handleClose } = useDropdownContext();
 
@@ -98,7 +100,7 @@ export function DropdownContent({
       role="menu"
       aria-orientation="vertical"
       className={cn(
-        "fade-in-0 zoom-in-95 pointer-events-auto absolute z-99 mt-2 min-w-[8rem] origin-top-right rounded-lg",
+        "fade-in-0 zoom-in-95 pointer-events-auto absolute z-[10000] mt-2 min-w-[8rem] origin-top-right",
         {
           "animate-in right-0": align === "end",
           "left-0": align === "start",
@@ -106,6 +108,7 @@ export function DropdownContent({
         },
         className,
       )}
+      style={style}
     >
       {children}
     </div>
