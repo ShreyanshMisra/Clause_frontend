@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { NAV_DATA } from "./data";
-import { ArrowLeftIcon, ChevronUp } from "./icons";
+import { ArrowLeftIcon, ChevronUp, SparklesIcon } from "./icons";
 import * as Icons from "./icons";
 import { MenuItem } from "./menu-item";
 import { useSidebarContext } from "./sidebar-context";
@@ -15,6 +15,17 @@ export function Sidebar() {
   const pathname = usePathname();
   const { setIsOpen, isOpen, isMobile, toggleSidebar } = useSidebarContext();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatInput, setChatInput] = useState("");
+  const [chatMessages, setChatMessages] = useState<
+    Array<{ role: "user" | "ai"; content: string }>
+  >([
+    {
+      role: "ai",
+      content: "Hello! I'm your AI assistant. How can I help you today? 😊",
+    },
+  ]);
+  const [isTyping, setIsTyping] = useState(false);
 
   const toggleExpanded = (title: string) => {
     setExpandedItems((prev) => (prev.includes(title) ? [] : [title]));
@@ -29,19 +40,22 @@ export function Sidebar() {
     // Keep collapsible open, when it's subpage is active
     NAV_DATA.some((section) => {
       return section.items.some((item) => {
-        return item.items.some((subItem) => {
-          if (subItem.url === pathname) {
-            if (!expandedItems.includes(item.title)) {
-              toggleExpanded(item.title);
+        if (item.items && Array.isArray(item.items) && item.items.length > 0) {
+          return item.items.some((subItem: any) => {
+            if (subItem?.url === pathname) {
+              if (!expandedItems.includes(item.title)) {
+                toggleExpanded(item.title);
+              }
+              // Break the loop
+              return true;
             }
-
-            // Break the loop
-            return true;
-          }
-        });
+            return false;
+          });
+        }
+        return false;
       });
     });
-  }, [pathname]);
+  }, [pathname, expandedItems, toggleExpanded]);
 
   return (
     <>
@@ -129,32 +143,43 @@ export function Sidebar() {
                               />
                             </MenuItem>
 
-                            {expandedItems.includes(item.title) && (
-                              <ul
-                                className="ml-9 mr-0 space-y-1.5 pb-[15px] pr-0 pt-2"
-                                role="menu"
-                              >
-                                {item.items.map((subItem) => (
-                                  <li key={subItem.title} role="none">
-                                    <MenuItem
-                                      as="link"
-                                      href={subItem.url}
-                                      isActive={pathname === subItem.url}
-                                    >
-                                      <span>{subItem.title}</span>
-                                    </MenuItem>
-                                  </li>
-                                ))}
-                              </ul>
-                            )}
+                            {expandedItems.includes(item.title) &&
+                              item.items &&
+                              Array.isArray(item.items) &&
+                              item.items.length > 0 && (
+                                <ul
+                                  className="ml-9 mr-0 space-y-1.5 pb-[15px] pr-0 pt-2"
+                                  role="menu"
+                                >
+                                  {item.items.map((subItem: any) => {
+                                    if (subItem?.title && subItem?.url) {
+                                      return (
+                                        <li key={subItem.title} role="none">
+                                          <MenuItem
+                                            as="link"
+                                            href={subItem.url}
+                                            isActive={pathname === subItem.url}
+                                          >
+                                            <span>{subItem.title}</span>
+                                          </MenuItem>
+                                        </li>
+                                      );
+                                    }
+                                    return null;
+                                  })}
+                                </ul>
+                              )}
                           </div>
                         ) : (
                           (() => {
                             const href =
-                              "url" in item
-                                ? item.url + ""
+                              "url" in item && item.url
+                                ? String(item.url)
                                 : "/" +
-                                  item.title.toLowerCase().split(" ").join("-");
+                                  String(item.title)
+                                    .toLowerCase()
+                                    .split(" ")
+                                    .join("-");
 
                             return (
                               <MenuItem
@@ -168,7 +193,7 @@ export function Sidebar() {
                                   aria-hidden="true"
                                 />
 
-                                <span>{item.title}</span>
+                                <span>{String(item.title)}</span>
                               </MenuItem>
                             );
                           })()
@@ -200,13 +225,129 @@ export function Sidebar() {
                   </p>
                 </div>
               </div>
-              <button className="shadow-glow-coral w-full rounded-full bg-gradient-primary px-4 py-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-105 active:scale-95">
+              <button
+                onClick={() => setChatOpen(true)}
+                className="shadow-glow-coral w-full rounded-full bg-gradient-primary px-4 py-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-105 active:scale-95"
+              >
                 Ask a Question
               </button>
             </div>
           </div>
         </div>
       </aside>
+
+      {/* AI Chat Panel - Bottom Left */}
+      {chatOpen && (
+        <div className="glass-card fixed bottom-6 left-6 z-50 w-96 rounded-3xl shadow-2xl">
+          <div className="border-peach-200/50 dark:border-coral-500/20 flex items-center justify-between border-b p-4">
+            <div className="flex items-center gap-2">
+              <SparklesIcon className="text-coral-500 dark:text-coral-400 size-5" />
+              <span className="font-bold text-dark dark:text-white">
+                AI Helper
+              </span>
+            </div>
+            <button
+              onClick={() => setChatOpen(false)}
+              className="hover:bg-peach-100 dark:hover:bg-coral-500/20 rounded-full p-1.5 transition-colors"
+              aria-label="Close chat"
+            >
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+          <div className="h-96 space-y-4 overflow-y-auto p-4">
+            {chatMessages.map((msg, idx) => (
+              <div
+                key={idx}
+                className={`flex ${
+                  msg.role === "user" ? "justify-end" : "justify-start"
+                }`}
+              >
+                <div
+                  className={`max-w-[80%] rounded-2xl p-3 text-sm ${
+                    msg.role === "user"
+                      ? "bg-peach-200 dark:bg-peach-900/30 text-dark dark:text-white"
+                      : "from-peach-100/60 to-coral-100/60 dark:from-coral-500/20 dark:to-orchid-500/20 bg-gradient-to-br text-dark dark:text-white"
+                  }`}
+                >
+                  {msg.content}
+                </div>
+              </div>
+            ))}
+            {isTyping && (
+              <div className="flex justify-start">
+                <div className="from-peach-100/60 to-coral-100/60 dark:from-coral-500/20 dark:to-orchid-500/20 rounded-2xl bg-gradient-to-br p-3">
+                  <div className="flex gap-1">
+                    <div className="bg-coral-500 h-2 w-2 animate-bounce rounded-full"></div>
+                    <div
+                      className="bg-coral-500 h-2 w-2 animate-bounce rounded-full"
+                      style={{ animationDelay: "0.2s" }}
+                    ></div>
+                    <div
+                      className="bg-coral-500 h-2 w-2 animate-bounce rounded-full"
+                      style={{ animationDelay: "0.4s" }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="border-peach-200/50 dark:border-coral-500/20 border-t p-4">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!chatInput.trim()) return;
+
+                setChatMessages((prev) => [
+                  ...prev,
+                  { role: "user", content: chatInput },
+                ]);
+                setChatInput("");
+                setIsTyping(true);
+
+                // Mock response - replace with actual API call later
+                setTimeout(() => {
+                  setChatMessages((prev) => [
+                    ...prev,
+                    {
+                      role: "ai",
+                      content:
+                        "This is a template response. The backend chatbot integration will be implemented here.",
+                    },
+                  ]);
+                  setIsTyping(false);
+                }, 1500);
+              }}
+              className="flex gap-2"
+            >
+              <input
+                type="text"
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                placeholder="Ask a question..."
+                className="input-pill flex-1"
+              />
+              <button
+                type="submit"
+                className="btn-gradient rounded-full px-6 py-3 font-semibold"
+              >
+                Send
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </>
   );
 }
