@@ -26,7 +26,6 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body suppressHydrationWarning>
       <head>
         {/* Vanta.js Dependencies */}
         <Script
@@ -38,7 +37,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
           strategy="beforeInteractive"
         />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <Providers>
           <SplashScreenProvider>
             <NextTopLoader color="#FF9578" showSpinner={false} />
