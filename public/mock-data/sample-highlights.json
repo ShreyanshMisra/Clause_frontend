@@ -1,10 +1,67 @@
 {
   "documentId": "1",
   "pdfUrl": "/sample-lease.pdf",
+  "documentMetadata": {
+    "fileName": "Lease Agreement - 16 New Ocean Street",
+    "uploadDate": "2024-01-15",
+    "fileSize": "245 KB",
+    "pageCount": 6,
+    "documentType": "Commercial Lease Agreement",
+    "parties": {
+      "landlord": "Town of Swampscott",
+      "tenant": "[REDACTED]",
+      "property": "16 New Ocean Street, Swampscott, MA"
+    }
+  },
+  "deidentificationSummary": {
+    "itemsRedacted": 12,
+    "categories": [
+      "Personal names (3 instances)",
+      "Email addresses (2 instances)",
+      "Phone numbers (1 instance)",
+      "Social Security Numbers (1 instance)",
+      "Bank account details (2 instances)",
+      "Signatures (3 instances)"
+    ]
+  },
+  "keyDetailsDetected": {
+    "leaseType": "Commercial Lease",
+    "propertyAddress": "16 New Ocean Street, Swampscott, MA 01907",
+    "landlord": "Town of Swampscott",
+    "leaseTerm": "Initial term with extension option",
+    "monthlyRent": "Variable (see base rent clause)",
+    "securityDeposit": "Not specified",
+    "specialClauses": [
+      "AS-IS condition acceptance",
+      "Broad indemnification clause",
+      "Assignment restrictions",
+      "Tenant maintenance responsibilities"
+    ]
+  },
   "analysisSummary": {
     "status": "complete",
-    "summaryText": "Analysis Complete — 5 key issues found. This commercial lease contains some concerning indemnification language and lacks certain tenant protections, but also includes favorable quiet enjoyment provisions.",
-    "potential_recovery": 0
+    "summaryText": "Analysis Complete — 5 key issues found. This commercial lease contains some concerning indemnification language and lacks certain tenant protections.",
+    "overallRisk": "Medium-High",
+    "issuesFound": 5,
+    "potential_recovery": 0,
+    "estimatedRecovery": "$0",
+    "topIssues": [
+      {
+        "title": "AS-IS Premises Condition",
+        "severity": "high",
+        "amount": "$0"
+      },
+      {
+        "title": "Broad Indemnification Clause",
+        "severity": "high",
+        "amount": "$0"
+      },
+      {
+        "title": "Assignment Restriction",
+        "severity": "medium",
+        "amount": "$0"
+      }
+    ]
   },
   "highlights": [
     {

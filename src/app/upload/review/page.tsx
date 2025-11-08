@@ -1,32 +1,74 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SparklesIcon } from "@/components/Layouts/sidebar/icons";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { fetchAnalysis, type AnalysisData } from "@/utils/fetchAnalysis";
 
 export default function ReviewPage() {
-  const [confirmed, setConfirmed] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const documentId = searchParams.get("documentId") || "1";
+  
+  const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [confirmed, setConfirmed] = useState(false);
 
-  const detectedInfo = {
-    documentType: "Lease",
-    tenant: "John Smith",
-    landlord: "ABC Properties LLC",
-    location: "123 Main St, Boston, MA 02115",
-    startDate: "January 1, 2024",
-    endDate: "December 31, 2024",
-    rent: "$2,000",
-    securityDeposit: "$2,500",
-    lateFee: "$75",
-  };
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        console.log('📄 Loading analysis for documentId:', documentId);
+        const data = await fetchAnalysis(documentId);
+        console.log('✅ Review page loaded data:', data);
+        setAnalysisData(data);
+        setError(null);
+      } catch (err) {
+        console.error("❌ Error loading analysis data:", err);
+        setError("Failed to load document analysis");
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, [documentId]);
 
   const handleContinue = () => {
-    if (confirmed) {
-      // Navigate to analyze step (step 4)
-      router.push("/upload?step=4");
+    if (confirmed && analysisData) {
+      router.push(`/results/${documentId}`);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent mb-4" />
+          <p className="text-lg text-dark dark:text-white">Loading document details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !analysisData) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-xl font-semibold text-red-600 mb-4">
+            {error || "No analysis data available"}
+          </p>
+          <button
+            onClick={() => router.push("/upload")}
+            className="btn-gradient px-6 py-3"
+          >
+            Back to Upload
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -62,7 +104,7 @@ export default function ReviewPage() {
                 Document type
               </span>
               <span className="bg-peach-100 text-peach-700 dark:bg-peach-900/30 dark:text-peach-400 rounded-full px-3 py-1 text-sm font-semibold">
-                {detectedInfo.documentType}
+                {analysisData.keyDetailsDetected.leaseType}
               </span>
             </div>
 
@@ -77,7 +119,7 @@ export default function ReviewPage() {
                     Tenant
                   </span>
                   <span className="bg-peach-50/60 dark:bg-peach-900/20 rounded-full px-3 py-1 text-sm font-medium text-dark dark:text-gray-300">
-                    {detectedInfo.tenant}
+                    {analysisData.documentMetadata.parties.tenant}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
@@ -85,7 +127,7 @@ export default function ReviewPage() {
                     Landlord
                   </span>
                   <span className="bg-peach-50/60 dark:bg-peach-900/20 rounded-full px-3 py-1 text-sm font-medium text-dark dark:text-gray-300">
-                    {detectedInfo.landlord}
+                    {analysisData.keyDetailsDetected.landlord}
                   </span>
                 </div>
               </div>
@@ -97,67 +139,68 @@ export default function ReviewPage() {
                 Location
               </span>
               <span className="bg-peach-50/60 dark:bg-peach-900/20 rounded-full px-3 py-1.5 text-sm font-medium text-dark dark:text-gray-300">
-                {detectedInfo.location}
+                {analysisData.keyDetailsDetected.propertyAddress}
               </span>
             </div>
 
-            {/* Dates */}
+            {/* Lease Term */}
             <div className="border-peach-200/50 dark:border-coral-500/20 rounded-2xl border bg-white/40 p-4 backdrop-blur-xl dark:bg-white/5">
               <div className="mb-3 text-sm font-medium text-dark-5 dark:text-gray-400">
-                Dates
+                Lease Term
               </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-dark dark:text-gray-300">
-                    Start date
-                  </span>
-                  <span className="text-sm font-medium text-dark dark:text-gray-300">
-                    {detectedInfo.startDate}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-dark dark:text-gray-300">
-                    End date
-                  </span>
-                  <span className="text-sm font-medium text-dark dark:text-gray-300">
-                    {detectedInfo.endDate}
-                  </span>
-                </div>
+              <div className="text-sm font-medium text-dark dark:text-gray-300">
+                {analysisData.keyDetailsDetected.leaseTerm}
               </div>
             </div>
 
             {/* Amounts */}
-            <div className="border-peach-200/50 dark:border-coral-500/20 rounded-2xl border bg-white/40 p-4 backdrop-blur-xl dark:bg-white/5">
-              <div className="mb-3 text-sm font-medium text-dark-5 dark:text-gray-400">
-                Amounts
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-dark dark:text-gray-300">
-                    Monthly rent
-                  </span>
-                  <span className="text-sm font-bold text-dark dark:text-white">
-                    {detectedInfo.rent}
-                  </span>
+            {(analysisData.keyDetailsDetected.monthlyRent || analysisData.keyDetailsDetected.securityDeposit) && (
+              <div className="border-peach-200/50 dark:border-coral-500/20 rounded-2xl border bg-white/40 p-4 backdrop-blur-xl dark:bg-white/5">
+                <div className="mb-3 text-sm font-medium text-dark-5 dark:text-gray-400">
+                  Amounts
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-dark dark:text-gray-300">
-                    Security deposit
-                  </span>
-                  <span className="text-sm font-bold text-dark dark:text-white">
-                    {detectedInfo.securityDeposit}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-dark dark:text-gray-300">
-                    Late fee
-                  </span>
-                  <span className="text-sm font-bold text-dark dark:text-white">
-                    {detectedInfo.lateFee}
-                  </span>
+                <div className="space-y-2">
+                  {analysisData.keyDetailsDetected.monthlyRent && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-dark dark:text-gray-300">
+                        Monthly rent
+                      </span>
+                      <span className="text-sm font-bold text-dark dark:text-white">
+                        {analysisData.keyDetailsDetected.monthlyRent}
+                      </span>
+                    </div>
+                  )}
+                  {analysisData.keyDetailsDetected.securityDeposit && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-dark dark:text-gray-300">
+                        Security deposit
+                      </span>
+                      <span className="text-sm font-bold text-dark dark:text-white">
+                        {analysisData.keyDetailsDetected.securityDeposit}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
+            )}
+
+            {/* Special Clauses */}
+            {analysisData.keyDetailsDetected.specialClauses && 
+             analysisData.keyDetailsDetected.specialClauses.length > 0 && (
+              <div className="border-peach-200/50 dark:border-coral-500/20 rounded-2xl border bg-white/40 p-4 backdrop-blur-xl dark:bg-white/5">
+                <div className="mb-3 text-sm font-medium text-dark-5 dark:text-gray-400">
+                  Notable Clauses
+                </div>
+                <ul className="space-y-1">
+                  {analysisData.keyDetailsDetected.specialClauses.map((clause, idx) => (
+                    <li key={idx} className="text-sm text-dark dark:text-gray-300 flex items-start gap-2">
+                      <span className="text-coral-500 mt-1">•</span>
+                      <span>{clause}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </div>
 
@@ -184,79 +227,26 @@ export default function ReviewPage() {
                 We de-identified your document
               </h3>
               <p className="text-xs text-dark-5 dark:text-gray-400">
-                This is what we send to our AI.
+                {analysisData.deidentificationSummary.itemsRedacted} items removed for privacy
               </p>
             </div>
           </div>
 
-          {/* Comparison Table */}
-          <div className="mb-4 space-y-3">
-            <div className="grid grid-cols-2 gap-3 text-xs font-semibold text-dark-5 dark:text-gray-400">
-              <div>Original details</div>
-              <div>AI sees this instead</div>
+          {/* De-identification Categories */}
+          <div className="mb-4 space-y-2">
+            <div className="text-xs font-semibold text-dark-5 dark:text-gray-400 mb-3">
+              What we removed:
             </div>
-
-            <div className="space-y-2">
-              {/* Name */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="border-peach-200/50 dark:border-coral-500/20 rounded-xl border bg-white/60 p-3 backdrop-blur-xl dark:bg-white/5">
-                  <div className="mb-1 text-xs text-dark-5 dark:text-gray-400">
-                    Name
-                  </div>
-                  <div className="text-sm font-medium text-dark blur-sm dark:text-gray-300">
-                    {detectedInfo.tenant}
-                  </div>
-                </div>
-                <div className="border-mint-200/50 bg-mint-50/60 dark:border-mint-800/30 dark:bg-mint-900/20 rounded-xl border p-3 backdrop-blur-xl">
-                  <div className="mb-1 text-xs text-dark-5 dark:text-gray-400">
-                    Name
-                  </div>
-                  <div className="font-mono text-sm font-medium text-dark dark:text-gray-300">
-                    [TENANT_1]
-                  </div>
-                </div>
-              </div>
-
-              {/* Address */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="border-peach-200/50 dark:border-coral-500/20 rounded-xl border bg-white/60 p-3 backdrop-blur-xl dark:bg-white/5">
-                  <div className="mb-1 text-xs text-dark-5 dark:text-gray-400">
-                    Address
-                  </div>
-                  <div className="text-sm font-medium text-dark blur-sm dark:text-gray-300">
-                    {detectedInfo.location}
-                  </div>
-                </div>
-                <div className="border-mint-200/50 bg-mint-50/60 dark:border-mint-800/30 dark:bg-mint-900/20 rounded-xl border p-3 backdrop-blur-xl">
-                  <div className="mb-1 text-xs text-dark-5 dark:text-gray-400">
-                    Address
-                  </div>
-                  <div className="font-mono text-sm font-medium text-dark dark:text-gray-300">
-                    [ADDRESS_1]
-                  </div>
-                </div>
-              </div>
-
-              {/* Amount */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="border-peach-200/50 dark:border-coral-500/20 rounded-xl border bg-white/60 p-3 backdrop-blur-xl dark:bg-white/5">
-                  <div className="mb-1 text-xs text-dark-5 dark:text-gray-400">
-                    Amount
-                  </div>
-                  <div className="text-sm font-medium text-dark blur-sm dark:text-gray-300">
-                    {detectedInfo.securityDeposit}
-                  </div>
-                </div>
-                <div className="border-mint-200/50 bg-mint-50/60 dark:border-mint-800/30 dark:bg-mint-900/20 rounded-xl border p-3 backdrop-blur-xl">
-                  <div className="mb-1 text-xs text-dark-5 dark:text-gray-400">
-                    Amount
-                  </div>
-                  <div className="font-mono text-sm font-medium text-dark dark:text-gray-300">
-                    [AMOUNT_1]
-                  </div>
-                </div>
-              </div>
-            </div>
+            <ul className="space-y-2">
+              {analysisData.deidentificationSummary.categories.map((category, idx) => (
+                <li key={idx} className="flex items-start gap-2 text-sm text-dark dark:text-gray-300">
+                  <svg className="text-mint-600 dark:text-mint-400 h-4 w-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>{category}</span>
+                </li>
+              ))}
+            </ul>
           </div>
 
           {/* Security Info Strip */}
@@ -304,7 +294,7 @@ export default function ReviewPage() {
           </label>
           <div className="flex gap-3">
             <Link
-              href="/upload?step=2"
+              href="/upload"
               className="btn-glass px-8 py-3 font-semibold"
             >
               Go back & adjust
@@ -342,9 +332,4 @@ export default function ReviewPage() {
       </div>
     </div>
   );
-}
-
-// Wrap in Suspense for useSearchParams compatibility
-function ReviewPageWrapper() {
-  return <ReviewPage />;
 }

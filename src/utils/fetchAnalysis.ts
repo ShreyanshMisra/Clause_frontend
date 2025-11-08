@@ -28,34 +28,82 @@ export interface Highlight {
   position: HighlightPosition;
 }
 
+export interface DocumentMetadata {
+  fileName: string;
+  uploadDate: string;
+  fileSize: string;
+  pageCount: number;
+  documentType: string;
+  parties: {
+    landlord: string;
+    tenant: string;
+    property: string;
+  };
+}
+
+export interface DeidentificationSummary {
+  itemsRedacted: number;
+  categories: string[];
+}
+
+export interface KeyDetailsDetected {
+  leaseType: string;
+  propertyAddress: string;
+  landlord: string;
+  leaseTerm: string;
+  monthlyRent?: string;
+  securityDeposit?: string;
+  specialClauses?: string[];
+}
+
+export interface TopIssue {
+  title: string;
+  severity: string;
+  amount: string;
+}
+
+export interface AnalysisSummary {
+  status: string;
+  summaryText: string;
+  overallRisk: string;
+  issuesFound: number;
+  potential_recovery: number;
+  estimatedRecovery: string;
+  topIssues: TopIssue[];
+}
+
 export interface AnalysisData {
   documentId: string;
   pdfUrl: string;
-  analysisSummary: {
-    status: string;
-    summaryText: string;
-    potential_recovery: number;
-  };
+  documentMetadata: DocumentMetadata;
+  deidentificationSummary: DeidentificationSummary;
+  keyDetailsDetected: KeyDetailsDetected;
+  analysisSummary: AnalysisSummary;
   highlights: Highlight[];
 }
 
 export async function fetchAnalysis(documentId: string): Promise<AnalysisData> {
   try {
-    // Try to fetch from backend API
-    const response = await fetch(`/api/analysis/${documentId}`);
+    // In production, this would call the backend API
+    // For now, always use the mock data as fallback
+    const response = await fetch('/mock-data/sample-highlights.json');
     
-    if (response.ok) {
-      const data = await response.json();
-      return data;
+    if (!response.ok) {
+      throw new Error(`Failed to fetch analysis data: ${response.statusText}`);
     }
     
-    // If backend fails or returns 404, fallback to mock data
-    throw new Error('Backend not available');
+    const data = await response.json();
+    console.log('✅ Fetched analysis data from mock JSON:', data);
+    
+    // Validate that required fields exist
+    if (!data.documentMetadata || !data.analysisSummary || !data.highlights) {
+      console.error('❌ Invalid analysis data structure:', data);
+      throw new Error('Invalid analysis data structure');
+    }
+    
+    return data;
   } catch (error) {
-    // Fallback to local mock data
-    console.log('Using mock data for analysis');
-    const mockResponse = await fetch('/mock-data/sample-highlights.json');
-    const mockData = await mockResponse.json();
-    return mockData;
+    console.error('❌ Error in fetchAnalysis:', error);
+    throw error;
   }
 }

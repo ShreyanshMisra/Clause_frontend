@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SparklesIcon } from "@/components/Layouts/sidebar/icons";
 import { useSearchParams } from "next/navigation";
 import GenerateLetterModal from "@/components/Modals/GenerateLetterModal";
 import CreateCaseModal from "@/components/Modals/CreateCaseModal";
 import dynamic from "next/dynamic";
+import { fetchAnalysis, type Highlight, type AnalysisData } from "@/utils/fetchAnalysis";
 
 const PdfAnalysisViewer = dynamic(
   () => import("@/components/PdfAnalysisViewer").then((mod) => ({ default: mod.PdfAnalysisViewer })),
@@ -31,48 +32,28 @@ export default function AnalysisPage() {
     },
   ]);
   const [isTyping, setIsTyping] = useState(false);
+  const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
+  const [issues, setIssues] = useState<Highlight[]>([]);
 
-  const issues = [
-    {
-      title: "Deposit held too long",
-      severity: "high",
-      summary:
-        "Your landlord may be holding your security deposit longer than allowed by Massachusetts law",
-      statute: "M.G.L. c. 186 §15B",
-      explanation:
-        "Under Massachusetts law, landlords must return security deposits within 30 days of lease termination, along with an itemized statement of deductions.",
-      impact:
-        "You may be entitled to triple damages (3x the deposit amount) plus interest.",
-      action:
-        "Send a demand letter requesting return of the deposit plus damages.",
-      amount: "$2,500",
-    },
-    {
-      title: "Illegal late fee",
-      severity: "medium",
-      summary:
-        "Late fee exceeds 5% of monthly rent or $30, whichever is greater",
-      statute: "M.G.L. c. 186 §15B",
-      explanation:
-        "Late fees in Massachusetts are capped at the greater of 5% of monthly rent or $30.",
-      impact:
-        "Any amount charged above this limit is illegal and must be refunded.",
-      action: "Request refund of excess late fee charges.",
-      amount: "$150",
-    },
-    {
-      title: "Non-refundable fee",
-      severity: "high",
-      summary:
-        "Non-refundable 'administrative fee' may violate security deposit law",
-      statute: "M.G.L. c. 186 §15B",
-      explanation:
-        "Most fees collected at move-in are considered part of the security deposit and must be refundable.",
-      impact: "You may be entitled to return of this fee plus triple damages.",
-      action: "Dispute the non-refundable nature of this fee.",
-      amount: "$500",
-    },
-  ];
+  useEffect(() => {
+    const loadAnalysisData = async () => {
+      try {
+        const data = await fetchAnalysis(documentId);
+        console.log("✅ Analysis page loaded data:", data);
+        setAnalysisData(data);
+        setIssues(data.highlights);
+      } catch (error) {
+        console.error("❌ Error loading analysis data:", error);
+      }
+    };
+    loadAnalysisData();
+  }, [documentId]);
+
+  const getSeverityFromColor = (color: string): "low" | "medium" | "high" => {
+    if (color === "red") return "high";
+    if (color === "yellow" || color === "orange") return "medium";
+    return "low";
+  };
 
   const severityColors = {
     low: "severity-low",
@@ -102,11 +83,11 @@ export default function AnalysisPage() {
     }, 1500);
   };
 
-  // Get document title from documentId (mock - in production, fetch from API)
-  const documentTitle = `Lease Agreement - 123 Main St${documentId !== "1" ? ` (Doc ${documentId})` : ""}`;
-  const estimatedRecovery = "$3,150";
-  const overallRisk = "Medium";
-  const issuesFound = issues.length;
+  const documentTitle = analysisData?.documentMetadata.fileName || "Loading...";
+  const estimatedRecovery = analysisData?.analysisSummary.estimatedRecovery || "$0";
+  const overallRisk = analysisData?.analysisSummary.overallRisk || "Unknown";
+  const issuesFound = analysisData?.analysisSummary.issuesFound || 0;
+  const totalRecovery = analysisData?.analysisSummary.potential_recovery || 0;
 
   return (
     <div className="space-y-6">
@@ -115,15 +96,17 @@ export default function AnalysisPage() {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h1 className="mb-1 text-2xl font-bold text-dark dark:text-white">
-              Lease Agreement - 123 Main St
+              {documentTitle}
             </h1>
             <p className="text-dark-5 dark:text-gray-400">
-              Uploaded on January 15, 2024
+              {analysisData?.documentMetadata.uploadDate
+                ? `Uploaded on ${new Date(analysisData.documentMetadata.uploadDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`
+                : "Loading..."}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <span className="severity-high rounded-full px-4 py-2 font-semibold">
-              High Risk
+            <span className={`${overallRisk.toLowerCase().includes("high") ? "severity-high" : overallRisk.toLowerCase().includes("medium") ? "severity-medium" : "severity-low"} rounded-full px-4 py-2 font-semibold`}>
+              {overallRisk} Risk
             </span>
             <button
               onClick={() => setLetterModalOpen(true)}
@@ -165,103 +148,114 @@ export default function AnalysisPage() {
           <div className="glass-card border-gold-200/50 from-gold-50/60 via-peach-50/40 to-coral-50/40 dark:border-gold-800/30 dark:from-gold-900/20 dark:via-peach-900/20 dark:to-coral-900/20 rounded-3xl border-2 bg-gradient-to-br p-6">
             <div className="mb-4 text-center">
               <div className="gradient-text mb-1 text-4xl font-bold">
-                $3,150
+                {estimatedRecovery}
               </div>
               <p className="text-sm font-semibold text-dark dark:text-white">
                 You might be owed
               </p>
             </div>
-            <div className="space-y-3">
-              <div className="flex justify-between text-sm">
-                <span className="text-dark-5 dark:text-gray-400">
-                  Security Deposit
-                </span>
-                <span className="font-bold text-dark dark:text-white">
-                  $2,500
-                </span>
+            {totalRecovery > 0 && (
+              <div className="space-y-3">
+                {issues
+                  .filter((issue) => issue.damages_estimate && issue.damages_estimate > 0)
+                  .map((issue, idx) => (
+                    <div key={idx} className="flex justify-between text-sm">
+                      <span className="text-dark-5 dark:text-gray-400">
+                        {issue.category}
+                      </span>
+                      <span className="font-bold text-dark dark:text-white">
+                        ${issue.damages_estimate?.toLocaleString()}
+                      </span>
+                    </div>
+                  ))}
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-dark-5 dark:text-gray-400">
-                  Illegal Fees
-                </span>
-                <span className="font-bold text-dark dark:text-white">
-                  $650
-                </span>
-              </div>
-            </div>
+            )}
           </div>
 
           {/* Issues List */}
           <div className="glass-card">
             <h2 className="mb-4 text-lg font-bold text-dark dark:text-white">
-              Findings
+              Findings {issuesFound > 0 && `(${issuesFound})`}
             </h2>
             <div className="space-y-3">
-              {issues.map((issue, idx) => (
-                <div
-                  key={idx}
-                  onClick={() =>
-                    setSelectedIssue(selectedIssue === idx ? null : idx)
-                  }
-                  className={`cursor-pointer rounded-2xl border-l-4 p-4 transition-all duration-300 hover:scale-[1.02] ${
-                    issue.severity === "high"
-                      ? "border-coral-400 bg-coral-50/50 dark:bg-coral-900/10"
-                      : issue.severity === "medium"
-                        ? "border-gold-400 bg-gold-50/50 dark:bg-gold-900/10"
-                        : "border-mint-400 bg-mint-50/50 dark:bg-mint-900/10"
-                  } ${selectedIssue === idx ? "ring-coral-400 shadow-soft-2 ring-2" : ""}`}
-                >
-                  <div className="mb-2 flex items-start justify-between">
-                    <h3 className="flex-1 font-bold text-dark dark:text-white">
-                      {issue.title}
-                    </h3>
-                    <span
-                      className={`ml-2 rounded-full px-2.5 py-1 text-xs font-semibold ${severityColors[issue.severity as keyof typeof severityColors]}`}
+              {issues.length > 0 ? (
+                issues.map((issue, idx) => {
+                  const severity = getSeverityFromColor(issue.color);
+                  const amountDisplay = issue.damages_estimate && issue.damages_estimate > 0
+                    ? `$${issue.damages_estimate.toLocaleString()}`
+                    : null;
+
+                  return (
+                    <div
+                      key={issue.id}
+                      onClick={() =>
+                        setSelectedIssue(selectedIssue === idx ? null : idx)
+                      }
+                      className={`cursor-pointer rounded-2xl border-l-4 p-4 transition-all duration-300 hover:scale-[1.02] ${
+                        severity === "high"
+                          ? "border-coral-400 bg-coral-50/50 dark:bg-coral-900/10"
+                          : severity === "medium"
+                            ? "border-gold-400 bg-gold-50/50 dark:bg-gold-900/10"
+                            : "border-mint-400 bg-mint-50/50 dark:bg-mint-900/10"
+                      } ${selectedIssue === idx ? "ring-coral-400 shadow-soft-2 ring-2" : ""}`}
                     >
-                      {issue.severity.toUpperCase()}
-                    </span>
-                  </div>
-                  <p className="mb-2 text-sm text-dark-5 dark:text-gray-400">
-                    {issue.summary}
-                  </p>
-                  <div className="mt-3 flex items-center gap-2">
-                    <span className="bg-peach-100 text-peach-700 dark:bg-peach-900/30 dark:text-peach-400 rounded-full px-3 py-1 font-mono text-xs font-semibold">
-                      {issue.statute}
-                    </span>
-                    <span className="gradient-text text-sm font-bold">
-                      {issue.amount}
-                    </span>
-                  </div>
-                  {selectedIssue === idx && (
-                    <div className="border-peach-200/50 dark:border-coral-500/20 mt-4 space-y-3 border-t pt-4">
-                      <div>
-                        <h4 className="mb-1 text-sm font-bold text-dark dark:text-white">
-                          Explanation
-                        </h4>
-                        <p className="text-sm leading-relaxed text-dark-5 dark:text-gray-400">
-                          {issue.explanation}
-                        </p>
+                      <div className="mb-2 flex items-start justify-between">
+                        <h3 className="flex-1 font-bold text-dark dark:text-white">
+                          {issue.category}
+                        </h3>
+                        <span
+                          className={`ml-2 rounded-full px-2.5 py-1 text-xs font-semibold ${severityColors[severity]}`}
+                        >
+                          {severity.toUpperCase()}
+                        </span>
                       </div>
-                      <div>
-                        <h4 className="mb-1 text-sm font-bold text-dark dark:text-white">
-                          What this means
-                        </h4>
-                        <p className="text-sm leading-relaxed text-dark-5 dark:text-gray-400">
-                          {issue.impact}
-                        </p>
+                      <p className="mb-2 text-sm text-dark-5 dark:text-gray-400">
+                        {issue.text.length > 100
+                          ? issue.text.substring(0, 100) + "..."
+                          : issue.text}
+                      </p>
+                      <div className="mt-3 flex items-center gap-2">
+                        {issue.statute && (
+                          <span className="bg-peach-100 text-peach-700 dark:bg-peach-900/30 dark:text-peach-400 rounded-full px-3 py-1 font-mono text-xs font-semibold">
+                            {issue.statute}
+                          </span>
+                        )}
+                        {amountDisplay && (
+                          <span className="gradient-text text-sm font-bold">
+                            {amountDisplay}
+                          </span>
+                        )}
                       </div>
-                      <div>
-                        <h4 className="mb-1 text-sm font-bold text-dark dark:text-white">
-                          What you can do
-                        </h4>
-                        <p className="text-sm leading-relaxed text-dark-5 dark:text-gray-400">
-                          {issue.action}
-                        </p>
-                      </div>
+                      {selectedIssue === idx && (
+                        <div className="border-peach-200/50 dark:border-coral-500/20 mt-4 space-y-3 border-t pt-4">
+                          <div>
+                            <h4 className="mb-1 text-sm font-bold text-dark dark:text-white">
+                              Explanation
+                            </h4>
+                            <p className="text-sm leading-relaxed text-dark-5 dark:text-gray-400">
+                              {issue.explanation}
+                            </p>
+                          </div>
+                          {issue.damages_estimate && issue.damages_estimate > 0 && (
+                            <div>
+                              <h4 className="mb-1 text-sm font-bold text-dark dark:text-white">
+                                Potential Recovery
+                              </h4>
+                              <p className="text-sm leading-relaxed text-dark-5 dark:text-gray-400">
+                                ${issue.damages_estimate.toLocaleString()}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
-                  )}
+                  );
+                })
+              ) : (
+                <div className="text-center text-dark-5 dark:text-gray-400 py-8">
+                  Loading issues...
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>

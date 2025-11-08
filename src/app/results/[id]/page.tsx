@@ -7,7 +7,7 @@ import { use } from "react";
 import AnalysisPreviewModal from "@/components/Modals/AnalysisPreviewModal";
 import GenerateLetterModal from "@/components/Modals/GenerateLetterModal";
 import CreateCaseModal from "@/components/Modals/CreateCaseModal";
-import { fetchAnalysis, type Highlight } from "@/utils/fetchAnalysis";
+import { fetchAnalysis, type Highlight, type AnalysisData } from "@/utils/fetchAnalysis";
 
 export default function ResultsPage({
   params,
@@ -18,188 +18,95 @@ export default function ResultsPage({
   const [letterModalOpen, setLetterModalOpen] = useState(false);
   const [caseModalOpen, setCaseModalOpen] = useState(false);
   const [keyIssues, setKeyIssues] = useState<Highlight[]>([]);
+  const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Mock results data - replace with actual data fetching based on params.id
-  // In production, fetch from API: const results = await fetchResults(params.id);
   const { id } = use(params);
   const documentId = parseInt(id);
-  const resultsData = {
-    1: {
-      documentId: 1,
-      documentTitle: "Lease – 123 Main St",
-      documentType: "Lease",
-      estimatedRecovery: "$3,250",
-      issuesFound: 3,
-      overallRisk: "Medium",
-      riskColor: "severity-medium",
-    },
-    2: {
-      documentId: 2,
-      documentTitle: "Hospital Bill – Baystate Medical",
-      documentType: "Medical Bill",
-      estimatedRecovery: "$780",
-      issuesFound: 2,
-      overallRisk: "Low",
-      riskColor: "severity-low",
-    },
-    3: {
-      documentId: 3,
-      documentTitle: "Lease – 45 Elm St",
-      documentType: "Lease",
-      estimatedRecovery: "$1,100",
-      issuesFound: 2,
-      overallRisk: "Low",
-      riskColor: "severity-low",
-    },
-  };
 
-  const results =
-    resultsData[documentId as keyof typeof resultsData] || resultsData[1];
-
-  // Results-specific data based on document ID
-  const resultsDetails = {
-    1: {
-      keyResults: [
-        {
-          category: "Deposits & Fees",
-          icon: "💰",
-          text: "Your security deposit may be held too long.",
-          amount: "$1,500 at risk",
-          color: "from-peach-400 to-coral-400",
-        },
-        {
-          category: "Late Fees / Extra Charges",
-          icon: "💸",
-          text: "We found potential issues with late fee charges.",
-          amount: "$200 in questionable fees",
-          color: "from-coral-400 to-orchid-400",
-        },
-        {
-          category: "Timeline Concerns",
-          icon: "📅",
-          text: "The move-out timeline and deposit return date may violate state rules.",
-          amount: "45 days overdue",
-          color: "from-gold-400 to-peach-400",
-        },
-      ],
-      findingsPreview: [
-        {
-          id: 1,
-          title: "Security deposit held more than 30 days",
-          severity: "high",
-          summary:
-            "Landlord failed to return deposit within the legal timeframe",
-          severityColor: "severity-high",
-        },
-        {
-          id: 2,
-          title: "Illegal late fee amount",
-          severity: "medium",
-          summary: "Late fee exceeds 5% of monthly rent or $30",
-          severityColor: "severity-medium",
-        },
-        {
-          id: 3,
-          title: "Non-refundable administrative fee",
-          severity: "high",
-          summary: "Non-refundable fee may violate security deposit law",
-          severityColor: "severity-high",
-        },
-      ],
-    },
-    2: {
-      keyResults: [
-        {
-          category: "Billing Errors",
-          icon: "💸",
-          text: "We found potential overcharges in your medical bill.",
-          amount: "$500 in potential overcharges",
-          color: "from-coral-400 to-orchid-400",
-        },
-        {
-          category: "Itemization Issues",
-          icon: "📋",
-          text: "The bill lacks clear itemization as required by law.",
-          amount: "$280 in unclear charges",
-          color: "from-gold-400 to-peach-400",
-        },
-      ],
-      findingsPreview: [
-        {
-          id: 1,
-          title: "Unclear itemization of charges",
-          severity: "medium",
-          summary: "Bill does not clearly break down all charges and services",
-          severityColor: "severity-medium",
-        },
-        {
-          id: 2,
-          title: "Potential billing code errors",
-          severity: "low",
-          summary: "Some charges may be incorrectly coded",
-          severityColor: "severity-low",
-        },
-      ],
-    },
-    3: {
-      keyResults: [
-        {
-          category: "Deposits & Fees",
-          icon: "💰",
-          text: "Security deposit return timeline concerns.",
-          amount: "$800 at risk",
-          color: "from-peach-400 to-coral-400",
-        },
-        {
-          category: "Late Fees",
-          icon: "💸",
-          text: "Potential late fee calculation issues.",
-          amount: "$300 in fees",
-          color: "from-coral-400 to-orchid-400",
-        },
-      ],
-      findingsPreview: [
-        {
-          id: 1,
-          title: "Security deposit held more than 30 days",
-          severity: "high",
-          summary:
-            "Landlord failed to return deposit within the legal timeframe",
-          severityColor: "severity-high",
-        },
-        {
-          id: 2,
-          title: "Late fee calculation error",
-          severity: "medium",
-          summary: "Late fee may have been calculated incorrectly",
-          severityColor: "severity-medium",
-        },
-      ],
-    },
-  };
-
-  const detail =
-    resultsDetails[documentId as keyof typeof resultsDetails] ||
-    resultsDetails[1];
-  const keyResults = detail.keyResults;
-  const findingsPreview = detail.findingsPreview;
-
-  // Fetch key issues from analysis data
   useEffect(() => {
-    const loadKeyIssues = async () => {
+    const loadAnalysisData = async () => {
       try {
-        const analysisData = await fetchAnalysis(id);
-        // Get top 3 issues sorted by priority
-        const topIssues = analysisData.highlights
-          .sort((a, b) => a.priority - b.priority)
-          .slice(0, 3);
-        setKeyIssues(topIssues);
+        const data = await fetchAnalysis(id);
+        console.log("✅ Loaded analysis data:", data);
+        console.log("📄 Has documentMetadata?", !!data?.documentMetadata);
+        console.log("📊 Has analysisSummary?", !!data?.analysisSummary);
+        setAnalysisData(data);
+        
+        if (data?.highlights) {
+          const topIssues = data.highlights
+            .sort((a, b) => a.priority - b.priority)
+            .slice(0, 3);
+          setKeyIssues(topIssues);
+        }
       } catch (error) {
-        console.error("Error loading key issues:", error);
+        console.error("❌ Error loading analysis data:", error);
+      } finally {
+        setLoading(false);
       }
     };
-    loadKeyIssues();
+    loadAnalysisData();
   }, [id]);
+
+  const getRiskColor = (risk: string) => {
+    const riskLower = risk.toLowerCase();
+    if (riskLower.includes("high")) return "severity-high";
+    if (riskLower.includes("medium")) return "severity-medium";
+    return "severity-low";
+  };
+
+  // LOADING STATE CHECK - MUST COME BEFORE ANY DATA ACCESS
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-5xl space-y-8">
+        <div className="glass-card p-10 text-center">
+          <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent mb-4"></div>
+          <p className="text-lg text-dark dark:text-white">Loading analysis results...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ERROR STATE CHECK - ENSURE DATA EXISTS
+  if (!analysisData || !analysisData.documentMetadata || !analysisData.analysisSummary) {
+    return (
+      <div className="mx-auto max-w-5xl space-y-8">
+        <div className="glass-card p-10 text-center">
+          <p className="text-lg text-dark dark:text-white mb-4">⚠️ Unable to load analysis data</p>
+          <Link href="/" className="btn-gradient px-6 py-3 text-sm font-semibold">
+            Back to dashboard
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // NOW IT'S SAFE TO ACCESS analysisData PROPERTIES
+  const results = {
+    documentId: parseInt(analysisData.documentId),
+    documentTitle: analysisData.documentMetadata.fileName,
+    documentType: analysisData.documentMetadata.documentType,
+    estimatedRecovery: analysisData.analysisSummary.estimatedRecovery,
+    issuesFound: analysisData.analysisSummary.issuesFound,
+    overallRisk: analysisData.analysisSummary.overallRisk,
+    riskColor: getRiskColor(analysisData.analysisSummary.overallRisk),
+  };
+
+  const keyResults = analysisData.analysisSummary.topIssues?.map((issue, idx) => {
+    const icons = ["💰", "⚖️", "📋"];
+    const colors = [
+      "from-peach-400 to-coral-400",
+      "from-coral-400 to-orchid-400",
+      "from-gold-400 to-peach-400",
+    ];
+    return {
+      category: issue.title,
+      icon: icons[idx % icons.length],
+      text: `Issue severity: ${issue.severity}`,
+      amount: issue.amount,
+      color: colors[idx % colors.length],
+    };
+  }) || [];
 
   const nextSteps = [
     {
@@ -292,27 +199,33 @@ export default function ResultsPage({
           What We Found
         </h2>
         <div className="grid gap-4 md:grid-cols-3">
-          {keyResults.map((result, idx) => (
-            <div
-              key={idx}
-              className="glass-card group cursor-pointer transition-all duration-300 hover:scale-105"
-            >
+          {keyResults.length > 0 ? (
+            keyResults.map((result, idx) => (
               <div
-                className={`mb-4 inline-flex rounded-2xl bg-gradient-to-br ${result.color} shadow-soft-2 p-4 text-3xl`}
+                key={idx}
+                className="glass-card group cursor-pointer transition-all duration-300 hover:scale-105"
               >
-                {result.icon}
+                <div
+                  className={`mb-4 inline-flex rounded-2xl bg-gradient-to-br ${result.color} shadow-soft-2 p-4 text-3xl`}
+                >
+                  {result.icon}
+                </div>
+                <h3 className="mb-2 text-lg font-bold text-dark dark:text-white">
+                  {result.category}
+                </h3>
+                <p className="mb-3 text-sm leading-relaxed text-dark-5 dark:text-gray-400">
+                  {result.text}
+                </p>
+                <div className="gradient-text text-xl font-bold">
+                  {result.amount}
+                </div>
               </div>
-              <h3 className="mb-2 text-lg font-bold text-dark dark:text-white">
-                {result.category}
-              </h3>
-              <p className="mb-3 text-sm leading-relaxed text-dark-5 dark:text-gray-400">
-                {result.text}
-              </p>
-              <div className="gradient-text text-xl font-bold">
-                {result.amount}
-              </div>
+            ))
+          ) : (
+            <div className="col-span-3 text-center text-dark-5 dark:text-gray-400">
+              Loading analysis results...
             </div>
-          ))}
+          )}
         </div>
       </div>
 
@@ -327,13 +240,13 @@ export default function ResultsPage({
               const severityColor =
                 issue.color === "red"
                   ? "severity-high"
-                  : issue.color === "yellow"
+                  : issue.color === "yellow" || issue.color === "orange"
                     ? "severity-medium"
                     : "severity-low";
               const severityLabel =
                 issue.color === "red"
                   ? "high"
-                  : issue.color === "yellow"
+                  : issue.color === "yellow" || issue.color === "orange"
                     ? "medium"
                     : "low";
 
@@ -375,35 +288,9 @@ export default function ResultsPage({
               );
             })
           ) : (
-            // Fallback to static data while loading
-            findingsPreview.map((finding) => (
-              <div
-                key={finding.id}
-                className="border-peach-200/50 hover:border-coral-300 hover:shadow-soft-2 dark:border-coral-500/20 dark:hover:border-coral-500/40 flex items-start justify-between rounded-2xl border bg-white/40 p-4 backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] dark:bg-white/5"
-              >
-                <div className="flex-1">
-                  <div className="mb-2 flex items-center gap-3">
-                    <h3 className="font-bold text-dark dark:text-white">
-                      {finding.title}
-                    </h3>
-                    <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${finding.severityColor}`}
-                    >
-                      {finding.severity.toUpperCase()}
-                    </span>
-                  </div>
-                  <p className="text-sm text-dark-5 dark:text-gray-400">
-                    {finding.summary}
-                  </p>
-                </div>
-                <Link
-                  href={`/analysis?documentId=${results.documentId}&issueId=${finding.id}`}
-                  className="text-coral-600 dark:text-coral-400 ml-4 flex-shrink-0 text-sm font-semibold hover:underline"
-                >
-                  Learn more →
-                </Link>
-              </div>
-            ))
+            <div className="text-center text-dark-5 dark:text-gray-400">
+              Loading key issues...
+            </div>
           )}
         </div>
       </div>
