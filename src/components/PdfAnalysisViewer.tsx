@@ -50,9 +50,11 @@ const CustomPopover: React.FC<CustomPopoverProps> = ({ highlight }) => (
             className={`inline-block px-2 py-1 text-xs font-semibold rounded ${
               highlight.color === "red"
                 ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                : highlight.color === "yellow"
-                  ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                  : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                : highlight.color === "orange"
+                  ? "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
+                  : highlight.color === "yellow"
+                    ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                    : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
             }`}
           >
             Priority {highlight.priority}
@@ -75,7 +77,7 @@ const CustomPopover: React.FC<CustomPopoverProps> = ({ highlight }) => (
         </div>
       )}
 
-      {highlight.damages_estimate && (
+      {highlight.damages_estimate && highlight.damages_estimate > 0 && (
         <div className="text-sm font-semibold text-green-600 dark:text-green-400">
           Potential Recovery: ${highlight.damages_estimate.toLocaleString()}
         </div>
@@ -92,6 +94,8 @@ const getHighlightColor = (color: string): string => {
   switch (color) {
     case "red":
       return "rgba(255, 99, 71, 0.35)";
+    case "orange":
+      return "rgba(255, 165, 0, 0.35)";
     case "yellow":
       return "rgba(255, 235, 59, 0.35)";
     case "green":
@@ -164,7 +168,10 @@ export const PdfAnalysisViewer: React.FC<PdfAnalysisViewerProps> = ({
 
   const highlightMap = new Map(analysisData.highlights.map((h) => [h.id, h]));
 
-  console.log("✅ PDF Viewer rendering with", highlights.length, "highlights");
+  console.log("🎨 Highlights to render:", highlights);
+  console.log("📍 First highlight position:", highlights[0]?.position);
+  console.log("📊 Total highlights:", highlights.length);
+  console.log("📄 PDF URL:", analysisData.pdfUrl);
 
   return (
     <div
@@ -175,56 +182,70 @@ export const PdfAnalysisViewer: React.FC<PdfAnalysisViewerProps> = ({
       }}
     >
       <PdfLoader url={analysisData.pdfUrl} beforeLoad={<div>Loading PDF...</div>}>
-        {(pdfDocument) => (
-          <PdfHighlighter
-            pdfDocument={pdfDocument}
-            enableAreaSelection={() => false}
-            onScrollChange={() => {}}
-            scrollRef={() => {}}
-            onSelectionFinished={() => null}
-            highlightTransform={(
-              highlight,
-              index,
-              setTip,
-              hideTip,
-              viewportToScaled,
-              screenshot,
-              isScrolledTo
-            ) => {
-              const original = highlightMap.get(highlight.id);
-              const color = original
-                ? getHighlightColor(original.color)
-                : "rgba(255,226,104,0.3)";
+        {(pdfDocument) => {
+          console.log("📄 PDF Document loaded:", pdfDocument);
+          return (
+            <PdfHighlighter
+              pdfDocument={pdfDocument}
+              enableAreaSelection={() => false}
+              onScrollChange={() => {}}
+              scrollRef={(scrollTo) => {
+                console.log("📜 ScrollRef initialized");
+              }}
+              onSelectionFinished={() => null}
+              highlightTransform={(
+                highlight,
+                index,
+                setTip,
+                hideTip,
+                viewportToScaled,
+                screenshot,
+                isScrolledTo
+              ) => {
+                console.log(`🖍️ Rendering highlight ${index}:`, highlight.id, highlight.position);
+                
+                const original = highlightMap.get(highlight.id);
+                const color = original
+                  ? getHighlightColor(original.color)
+                  : "rgba(255,226,104,0.3)";
 
-              return (
-                <div
-                  key={highlight.id}
-                  style={{
-                    background: color,
-                    cursor: "pointer",
-                  }}
-                  onClick={() => {
-                    setTip(highlight, () =>
-                      original ? (
-                        <CustomPopover highlight={original} />
-                      ) : (
-                        <div>No details available</div>
-                      )
-                    );
-                    if (onSelectIssue) onSelectIssue(highlight.id);
-                  }}
-                >
-                  <Highlight
+                console.log(`🎨 Using color: ${color} for highlight ${highlight.id}`);
+
+                return (
+                  <AreaHighlight
+                    key={highlight.id}
+                    highlight={highlight}
                     isScrolledTo={isScrolledTo}
-                    position={highlight.position}
-                    comment={highlight.comment}
+                    onChange={() => {}}
+                    onClick={() => {
+                      console.log("🖱️ Clicked highlight:", highlight.id);
+                      setTip(highlight, () =>
+                        original ? (
+                          <CustomPopover highlight={original} />
+                        ) : (
+                          <div>No details available</div>
+                        )
+                      );
+                      if (onSelectIssue) onSelectIssue(highlight.id);
+                    }}
+                    onMouseEnter={() => {
+                      console.log("🐭 Mouse entered highlight:", highlight.id);
+                      setTip(highlight, () =>
+                        original ? (
+                          <CustomPopover highlight={original} />
+                        ) : (
+                          <div>No details available</div>
+                        )
+                      );
+                    }}
+                    onMouseLeave={hideTip}
                   />
-                </div>
-              );
-            }}
-            highlights={highlights}
-          />
-        )}
+                );
+              }}
+              highlights={highlights}
+            />
+          );
+        }}
       </PdfLoader>
     </div>
   );
