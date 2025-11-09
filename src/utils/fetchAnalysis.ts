@@ -136,6 +136,12 @@ export async function fetchAnalysis(file_id: string): Promise<AnalysisData> {
       throw new Error("Invalid analysis data structure");
     }
 
+    // Ensure documentId is set to the file_id used to fetch the analysis
+    // This ensures we always have the file_id available for context
+    if (!data.documentId || data.documentId === "1") {
+      data.documentId = file_id;
+    }
+
     // Convert relative PDF URL to absolute URL
     if (data.pdfUrl && !data.pdfUrl.startsWith("http")) {
       data.pdfUrl = getFileUrl(data.pdfUrl);

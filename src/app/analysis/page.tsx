@@ -65,6 +65,14 @@ export default function AnalysisPage() {
   const pdfViewerRef = useRef<PdfAnalysisViewerRef>(null);
   const chatMessagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Voice recording state
+  const [isRecording, setIsRecording] = useState(false);
+  const [isProcessingVoice, setIsProcessingVoice] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+
   // Auto-scroll to bottom when new messages are added
   useEffect(() => {
     if (chatOpen && chatMessagesEndRef.current) {
@@ -147,6 +155,504 @@ export default function AnalysisPage() {
       toast.error("Failed to get AI response. Please try again.");
     } finally {
       setIsTyping(false);
+    }
+  };
+
+  // Voice recording handlers
+  // Constants for audio validation
+  const MIN_AUDIO_SIZE_BYTES = 1000; // ~200-500ms of audio minimum
+  const MAX_RECORDING_DURATION_MS = 60000; // 60 seconds max
+
+  const startRecording = async () => {
+    try {
+      // Validate state: should not be recording or processing
+      if (isRecording || isProcessingVoice) {
+        console.warn("[RECORDING] Already recording or processing");
+        return;
+      }
+
+      // Stop any existing recording first
+      if (
+        mediaRecorderRef.current &&
+        mediaRecorderRef.current.state !== "inactive"
+      ) {
+        console.log("[RECORDING] Stopping existing recorder");
+        mediaRecorderRef.current.stop();
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+
+      // Request microphone access
+      console.log("[RECORDING] Requesting microphone access...");
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
+
+      // Store stream reference for cleanup
+      streamRef.current = stream;
+
+      // Determine MIME type - prefer webm with opus codec
+      let mimeType = "audio/webm;codecs=opus";
+      if (MediaRecorder.isTypeSupported("audio/webm;codecs=opus")) {
+        mimeType = "audio/webm;codecs=opus";
+      } else if (MediaRecorder.isTypeSupported("audio/webm")) {
+        mimeType = "audio/webm";
+      } else if (MediaRecorder.isTypeSupported("audio/mp4")) {
+        mimeType = "audio/mp4";
+      } else {
+        // Fallback to default
+        mimeType = "";
+      }
+
+      console.log("[RECORDING] Using MIME type:", mimeType || "default");
+
+      // Create MediaRecorder
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: mimeType || undefined,
+      });
+
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      // Track recording start time for max duration
+      const recordingStartTime = Date.now();
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+          console.log(
+            "[RECORDING] Chunk received:",
+            event.data.size,
+            "bytes, Total chunks:",
+            audioChunksRef.current.length,
+          );
+
+          // Check max duration
+          const elapsed = Date.now() - recordingStartTime;
+          if (elapsed >= MAX_RECORDING_DURATION_MS) {
+            console.log("[RECORDING] Max duration reached, stopping");
+            stopRecording();
+          }
+        }
+      };
+
+      mediaRecorder.onerror = (event) => {
+        console.error("[RECORDING] Error:", event);
+        toast.error("Recording error occurred");
+        setIsRecording(false);
+        cleanupStream();
+      };
+
+      mediaRecorder.onstop = () => {
+        console.log(
+          "[RECORDING] Stopped. Total chunks:",
+          audioChunksRef.current.length,
+        );
+
+        // Clean up stream immediately
+        cleanupStream();
+
+        // Validate and submit audio
+        validateAndSubmitAudio();
+      };
+
+      // Start recording with timeslice (1000ms = 1 second chunks)
+      mediaRecorder.start(1000);
+      setIsRecording(true);
+      toast.success("Recording... Click again to stop");
+    } catch (error: any) {
+      console.error("[RECORDING] Error accessing microphone:", error);
+      const errorMsg =
+        error.name === "NotAllowedError" ||
+        error.name === "PermissionDeniedError"
+          ? "Microphone permission denied. Please allow microphone access."
+          : error.name === "NotFoundError" ||
+              error.name === "DevicesNotFoundError"
+            ? "No microphone found. Please connect a microphone."
+            : "Failed to access microphone. Please check permissions.";
+      toast.error(errorMsg);
+      setIsRecording(false);
+      cleanupStream();
+    }
+  };
+
+  const cleanupStream = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => {
+        track.stop();
+        console.log("[RECORDING] Stopped track:", track.kind);
+      });
+      streamRef.current = null;
+    }
+  };
+
+  const validateAndSubmitAudio = async () => {
+    // Wait a bit to ensure all chunks are collected
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    // Validate audio chunks
+    if (audioChunksRef.current.length === 0) {
+      console.error("[RECORDING] No audio chunks recorded");
+      toast.error("No audio recorded. Please try again.");
+      setIsProcessingVoice(false);
+      audioChunksRef.current = [];
+      return;
+    }
+
+    // Calculate total size
+    const totalSize = audioChunksRef.current.reduce(
+      (sum, chunk) => sum + chunk.size,
+      0,
+    );
+
+    console.log("[RECORDING] Total audio size:", totalSize, "bytes");
+
+    // Validate minimum size (200-500ms of audio)
+    if (totalSize < MIN_AUDIO_SIZE_BYTES) {
+      console.error("[RECORDING] Audio too short:", totalSize, "bytes");
+      toast.error(
+        `Recording too short (${Math.round(totalSize / 100)}ms). Please record at least 0.5 seconds.`,
+      );
+      setIsProcessingVoice(false);
+      audioChunksRef.current = [];
+      return;
+    }
+
+    // Submit audio
+    await handleVoiceSubmit();
+  };
+
+  const stopRecording = () => {
+    if (!mediaRecorderRef.current) {
+      console.warn("[RECORDING] No recorder to stop");
+      setIsRecording(false);
+      return;
+    }
+
+    const state = mediaRecorderRef.current.state;
+    console.log("[RECORDING] Stop requested. Current state:", state);
+
+    if (state === "recording") {
+      // Request final data chunk before stopping
+      mediaRecorderRef.current.requestData();
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      setIsProcessingVoice(true);
+      toast.success("Processing recording...");
+    } else if (state === "inactive") {
+      // Already stopped
+      setIsRecording(false);
+    } else {
+      // Paused or other state
+      setIsRecording(false);
+    }
+  };
+
+  const handleVoiceSubmit = async () => {
+    // This function is called after recording stops and audio is validated
+    if (isProcessingVoice) {
+      console.warn("[VOICE] Already processing");
+      return;
+    }
+
+    setIsProcessingVoice(true);
+
+    try {
+      // Validate audio chunks (should already be validated, but double-check)
+      if (audioChunksRef.current.length === 0) {
+        throw new Error("No audio chunks available");
+      }
+
+      const totalSize = audioChunksRef.current.reduce(
+        (sum, chunk) => sum + chunk.size,
+        0,
+      );
+
+      if (totalSize < MIN_AUDIO_SIZE_BYTES) {
+        throw new Error(`Audio too short: ${totalSize} bytes`);
+      }
+
+      console.log(
+        "[VOICE] Submitting audio:",
+        audioChunksRef.current.length,
+        "chunks,",
+        totalSize,
+        "bytes",
+      );
+
+      // Determine MIME type from chunks
+      let mimeType = "audio/webm";
+      if (audioChunksRef.current[0]?.type) {
+        mimeType = audioChunksRef.current[0].type;
+      }
+
+      // Create audio blob
+      const audioBlob = new Blob(audioChunksRef.current, {
+        type: mimeType,
+      });
+
+      console.log(
+        "[VOICE] Created blob:",
+        audioBlob.size,
+        "bytes, type:",
+        audioBlob.type,
+      );
+
+      // Prepare FormData
+      const formData = new FormData();
+      const filename = mimeType.includes("webm")
+        ? "recording.webm"
+        : mimeType.includes("mp4")
+          ? "recording.mp4"
+          : "recording.audio";
+      formData.append("audio", audioBlob, filename);
+
+      // Add file_id - use the same logic as text chat for consistency
+      // The file_id is critical for document context in voice responses
+      // Use the same simple logic as handleSendMessage to ensure consistency
+      let fileId: string | undefined = undefined;
+
+      // Use the exact same logic as text chat (handleSendMessage)
+      // This ensures voice chat always has the same context as text chat
+      if (fileIdFromUrl && fileIdFromUrl !== "1") {
+        fileId = fileIdFromUrl;
+      }
+
+      // If fileIdFromUrl is not available, try documentId (which is derived from URL)
+      // documentId should be the same as fileIdFromUrl, but this is a fallback
+      if (!fileId && documentId && documentId !== "1") {
+        fileId = documentId;
+      }
+
+      // Last resort: if we have analysisData loaded, it means we successfully
+      // fetched a document, so use the documentId that was used to fetch it
+      // This ensures we always have context when analysis data is loaded
+      if (!fileId && analysisData) {
+        // If analysisData exists, we know a document was loaded
+        // Use documentId from state (which was used to fetch the analysis)
+        if (documentId && documentId !== "1") {
+          fileId = documentId;
+        }
+      }
+
+      if (fileId) {
+        formData.append("file_id", fileId);
+        console.log("[VOICE] ✅ Added file_id to request:", fileId);
+        console.log("[VOICE] Analysis data available:", !!analysisData);
+        if (analysisData) {
+          console.log(
+            "[VOICE] Analysis data highlights count:",
+            analysisData.highlights?.length || 0,
+          );
+          console.log("[VOICE] Analysis data summary:", {
+            issuesFound: analysisData.analysisSummary?.issuesFound,
+            overallRisk: analysisData.analysisSummary?.overallRisk,
+            estimatedRecovery: analysisData.analysisSummary?.estimatedRecovery,
+          });
+        }
+      } else {
+        console.warn(
+          "[VOICE] ⚠️ No file_id available - response will not have document context",
+        );
+        console.warn("[VOICE] fileIdFromUrl:", fileIdFromUrl);
+        console.warn("[VOICE] documentId:", documentId);
+        console.warn(
+          "[VOICE] analysisData?.documentId:",
+          analysisData?.documentId,
+        );
+        console.warn("[VOICE] caseId:", caseId);
+      }
+
+      // Call voice chat endpoint
+      const BASE_URL =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      console.log(
+        "[VOICE] Calling voice chat endpoint:",
+        `${BASE_URL}/chat/voice`,
+      );
+
+      const response = await fetch(`${BASE_URL}/chat/voice`, {
+        method: "POST",
+        body: formData,
+      });
+
+      console.log(
+        "[VOICE] Response status:",
+        response.status,
+        response.statusText,
+      );
+
+      // Check for errors
+      if (!response.ok) {
+        const errorText = await response
+          .text()
+          .catch(() => response.statusText);
+        console.error("[VOICE] Error response:", errorText);
+        throw new Error(
+          `Voice chat failed (${response.status}): ${errorText || response.statusText}`,
+        );
+      }
+
+      // Get transcript and answer from headers (URL-encoded)
+      const transcriptHeader = response.headers.get("X-Transcript-Text");
+      const answerHeader = response.headers.get("X-Answer-Text");
+      const languageHeader = response.headers.get("X-Language");
+      const ttsErrorHeader = response.headers.get("X-TTS-Error");
+
+      // Decode headers
+      let transcriptText: string | null = null;
+      let answerText: string | null = null;
+
+      if (transcriptHeader) {
+        try {
+          transcriptText = decodeURIComponent(transcriptHeader);
+          console.log("[VOICE] Transcript:", transcriptText);
+        } catch (e) {
+          console.warn("[VOICE] Failed to decode transcript header:", e);
+        }
+      }
+
+      if (answerHeader) {
+        try {
+          answerText = decodeURIComponent(answerHeader);
+          console.log("[VOICE] Answer:", answerText);
+        } catch (e) {
+          console.warn("[VOICE] Failed to decode answer header:", e);
+        }
+      }
+
+      // Get audio response
+      const audioBlobResponse = await response.blob();
+      console.log(
+        "[VOICE] Received audio response:",
+        audioBlobResponse.size,
+        "bytes, type:",
+        audioBlobResponse.type,
+      );
+
+      // Handle TTS error (empty audio but text available)
+      if (ttsErrorHeader === "1" && answerText) {
+        console.warn("[VOICE] TTS failed, but text response available");
+        toast("Voice playback unavailable, showing text response", {
+          icon: "⚠️",
+        });
+        // Still add messages and continue
+      }
+
+      // Validate audio response (unless TTS failed)
+      if (audioBlobResponse.size === 0 && ttsErrorHeader !== "1") {
+        console.warn("[VOICE] Empty audio response received");
+        toast.error("Received empty audio response");
+        // Continue to add text messages even if audio is empty
+      }
+
+      // Play audio if available and TTS didn't fail
+      if (audioBlobResponse.size > 0 && ttsErrorHeader !== "1") {
+        const audioUrl = URL.createObjectURL(audioBlobResponse);
+
+        // Create or reuse audio element
+        const audio = audioPlayerRef.current || new Audio();
+        audio.src = audioUrl;
+
+        // Set up event handlers
+        audio.onloadeddata = () => {
+          console.log("[VOICE] Audio loaded, playing...");
+          audio.play().catch((error) => {
+            console.error("[VOICE] Error playing audio:", error);
+            toast.error(
+              "Failed to play audio response. Please check your audio settings.",
+            );
+          });
+        };
+
+        audio.onerror = (error) => {
+          console.error("[VOICE] Audio load/play error:", error);
+          toast.error("Failed to load audio response");
+        };
+
+        audio.onended = () => {
+          console.log("[VOICE] Audio playback ended");
+          URL.revokeObjectURL(audioUrl);
+          setIsProcessingVoice(false);
+        };
+
+        // Store reference
+        if (!audioPlayerRef.current) {
+          audioPlayerRef.current = audio;
+        }
+      } else {
+        // No audio to play, clear processing state immediately
+        setIsProcessingVoice(false);
+      }
+
+      // Add messages to chat UI
+      if (transcriptText) {
+        setChatMessages((prev) => [
+          ...prev,
+          { role: "user", content: transcriptText },
+        ]);
+      }
+
+      if (answerText) {
+        setChatMessages((prev) => [
+          ...prev,
+          { role: "ai", content: answerText },
+        ]);
+      }
+
+      if (transcriptText || answerText) {
+        toast.success("Voice response received");
+      }
+    } catch (error: any) {
+      console.error("[VOICE] Voice chat error:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      console.error("[VOICE] Full error details:", {
+        message: errorMessage,
+        stack: error.stack,
+        name: error.name,
+      });
+
+      // Provide specific error messages
+      if (errorMessage.includes("404") || errorMessage.includes("not found")) {
+        toast.error("Voice endpoint not found. Please check backend server.");
+      } else if (
+        errorMessage.includes("500") ||
+        errorMessage.includes("502") ||
+        errorMessage.includes("503")
+      ) {
+        toast.error(
+          "Server error. Please check backend logs or try again later.",
+        );
+      } else if (
+        errorMessage.includes("network") ||
+        errorMessage.includes("fetch") ||
+        errorMessage.includes("Failed to fetch")
+      ) {
+        toast.error("Network error. Please check your connection.");
+      } else if (
+        errorMessage.includes("permission") ||
+        errorMessage.includes("Permission")
+      ) {
+        toast.error("Microphone permission denied. Please allow access.");
+      } else {
+        toast.error(`Voice chat failed: ${errorMessage.substring(0, 100)}`);
+      }
+    } finally {
+      // Clear audio chunks
+      audioChunksRef.current = [];
+      // Note: isProcessingVoice is cleared in audio.onended or immediately if no audio
+    }
+  };
+
+  const toggleRecording = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
     }
   };
 
@@ -496,23 +1002,61 @@ export default function AnalysisPage() {
                 e.preventDefault();
                 await handleSendMessage(chatInput);
               }}
-              className="flex gap-2"
+              className="flex items-center gap-2"
             >
               <input
                 type="text"
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 placeholder="Ask a question..."
-                className="input-pill flex-1"
-                disabled={isTyping}
+                className="input-pill flex-1 py-2 text-sm"
+                disabled={isTyping || isProcessingVoice || isRecording}
               />
-              <button
-                type="submit"
-                disabled={isTyping}
-                className="btn-gradient rounded-full px-6 py-3 font-semibold disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                Send
-              </button>
+              <div className="flex flex-col gap-1.5">
+                <button
+                  type="button"
+                  onClick={toggleRecording}
+                  disabled={isTyping || isProcessingVoice}
+                  className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-semibold transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50 ${
+                    isRecording
+                      ? "animate-pulse bg-red-500 text-white hover:bg-red-600"
+                      : "btn-glass text-coral-600 hover:bg-peach-100 dark:text-coral-400 dark:hover:bg-coral-500/20"
+                  }`}
+                  title={
+                    isRecording ? "Stop recording" : "Start voice recording"
+                  }
+                >
+                  {isRecording ? (
+                    <svg
+                      className="h-4 w-4 shrink-0"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path d="M6 6h12v12H6z" />
+                    </svg>
+                  ) : isProcessingVoice ? (
+                    <div className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+                  ) : (
+                    <svg
+                      className="h-4 w-4 shrink-0"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+                      <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
+                    </svg>
+                  )}
+                </button>
+                <button
+                  type="submit"
+                  disabled={isTyping || isProcessingVoice || isRecording}
+                  className="btn-gradient flex h-9 items-center justify-center rounded-full px-4 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Send
+                </button>
+              </div>
             </form>
           </div>
         </div>

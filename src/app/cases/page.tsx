@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { api, DocumentsListResponse, APIError } from "@/lib/api";
 import toast from "react-hot-toast";
-import { CardSkeleton } from "@/components/Skeletons/CardSkeleton";
+import { CaseCardSkeleton } from "@/components/Skeletons/CardSkeleton";
 
 interface CaseItem {
   id: string;
@@ -23,6 +23,7 @@ export default function CasesPage() {
   const [cases, setCases] = useState<CaseItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Fetch cases from backend
   useEffect(() => {
@@ -115,6 +116,47 @@ export default function CasesPage() {
     fetchCases();
   }, []);
 
+  // Delete case handler
+  const handleDeleteCase = async (
+    caseId: string,
+    caseTitle: string,
+    e: React.MouseEvent,
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Confirm deletion
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${caseTitle}"? This action cannot be undone.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setDeletingId(caseId);
+
+      // Call delete API
+      await api.delete(`/document/${caseId}`);
+
+      // Remove case from UI
+      setCases((prevCases) => prevCases.filter((c) => c.id !== caseId));
+
+      toast.success("Case deleted successfully");
+    } catch (err) {
+      console.error("Error deleting case:", err);
+
+      if (err instanceof APIError) {
+        toast.error(`Failed to delete case: ${err.detail}`);
+      } else {
+        toast.error("Failed to delete case. Please try again.");
+      }
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   const filteredCases = cases.filter((case_) => {
     if (filter !== "all") {
       const statusLower = case_.status.toLowerCase();
@@ -150,12 +192,12 @@ export default function CasesPage() {
           </div>
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <CardSkeleton />
-          <CardSkeleton />
-          <CardSkeleton />
-          <CardSkeleton />
-          <CardSkeleton />
-          <CardSkeleton />
+          <CaseCardSkeleton />
+          <CaseCardSkeleton />
+          <CaseCardSkeleton />
+          <CaseCardSkeleton />
+          <CaseCardSkeleton />
+          <CaseCardSkeleton />
         </div>
       </div>
     );
@@ -250,66 +292,92 @@ export default function CasesPage() {
       {/* Cases Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {filteredCases.map((case_) => (
-          <Link
-            key={case_.id}
-            href={`/cases/${case_.id}`}
-            className="glass-card group cursor-pointer"
-          >
-            <div className="mb-4 flex items-start justify-between">
-              <div className="flex items-start gap-3">
-                <div className="text-3xl">{case_.icon}</div>
-                <div className="flex-1">
-                  <h3 className="group-hover:gradient-text mb-1 text-lg font-bold text-dark transition-all dark:text-white">
-                    {case_.title}
-                  </h3>
-                  <p className="text-sm text-dark-5 dark:text-gray-400">
-                    {case_.type}
-                  </p>
+          <div key={case_.id} className="glass-card group relative">
+            {/* Delete Button */}
+            <button
+              onClick={(e) => handleDeleteCase(case_.id, case_.title, e)}
+              disabled={deletingId === case_.id}
+              className="absolute right-2 top-2 z-10 rounded-lg bg-red-500/10 p-1.5 text-gray-500 transition-all hover:bg-red-500/30 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-500/50 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-400 dark:hover:text-red-400"
+              title="Delete case"
+              aria-label={`Delete ${case_.title}`}
+            >
+              {deletingId === case_.id ? (
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+              ) : (
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+              )}
+            </button>
+
+            {/* Case Card Content - Clickable Link */}
+            <Link href={`/cases/${case_.id}`} className="block cursor-pointer">
+              <div className="mb-4 flex items-start justify-between pr-10">
+                <div className="flex items-start gap-3">
+                  <div className="text-3xl">{case_.icon}</div>
+                  <div className="flex-1">
+                    <h3 className="group-hover:gradient-text mb-1 text-lg font-bold text-dark transition-all dark:text-white">
+                      {case_.title}
+                    </h3>
+                    <p className="text-sm text-dark-5 dark:text-gray-400">
+                      {case_.type}
+                    </p>
+                  </div>
+                </div>
+                <span
+                  className={`rounded-full px-3 py-1.5 text-xs font-semibold ${case_.statusColor}`}
+                >
+                  {case_.status}
+                </span>
+              </div>
+              <div className="mb-4 flex items-center justify-between">
+                <span className="text-sm text-dark-5 dark:text-gray-400">
+                  Last activity
+                </span>
+                <span className="text-sm font-semibold text-dark dark:text-white">
+                  {case_.lastActivity}
+                </span>
+              </div>
+              <div className="border-t border-peach-200/50 pt-4 dark:border-coral-500/20">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-dark-5 dark:text-gray-400">
+                    Est. Recovery
+                  </span>
+                  <span className="gradient-text text-2xl font-bold">
+                    {case_.recovery}
+                  </span>
                 </div>
               </div>
-              <span
-                className={`rounded-full px-3 py-1.5 text-xs font-semibold ${case_.statusColor}`}
-              >
-                {case_.status}
-              </span>
-            </div>
-            <div className="mb-4 flex items-center justify-between">
-              <span className="text-sm text-dark-5 dark:text-gray-400">
-                Last activity
-              </span>
-              <span className="text-sm font-semibold text-dark dark:text-white">
-                {case_.lastActivity}
-              </span>
-            </div>
-            <div className="border-t border-peach-200/50 pt-4 dark:border-coral-500/20">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-dark-5 dark:text-gray-400">
-                  Est. Recovery
-                </span>
-                <span className="gradient-text text-2xl font-bold">
-                  {case_.recovery}
+              <div className="mt-4 flex items-center gap-2">
+                <svg
+                  className="h-4 w-4 text-coral-500 transition-transform group-hover:translate-x-1 dark:text-coral-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+                <span className="text-sm font-semibold text-coral-600 dark:text-coral-400">
+                  View Details
                 </span>
               </div>
-            </div>
-            <div className="mt-4 flex items-center gap-2">
-              <svg
-                className="h-4 w-4 text-coral-500 transition-transform group-hover:translate-x-1 dark:text-coral-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-              <span className="text-sm font-semibold text-coral-600 dark:text-coral-400">
-                View Details
-              </span>
-            </div>
-          </Link>
+            </Link>
+          </div>
         ))}
       </div>
 
