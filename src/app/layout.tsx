@@ -16,8 +16,8 @@ import SplashScreenProvider from "@/components/SplashScreenProvider";
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | Clause - The Fine Print, Finally Fair",
-    default: "Clause - The Fine Print, Finally Fair",
+    template: "%s | Clause - Fine Print, Finally Fair",
+    default: "Clause - Fine Print, Finally Fair",
   },
   description:
     "AI-powered lease analyzer for rental agreements in Massachusetts. Spot illegal clauses, calculate what you're owed, and generate demand letters.",

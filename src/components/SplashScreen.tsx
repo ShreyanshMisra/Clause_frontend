@@ -94,7 +94,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
             </span>
           </h1>
           <p className="text-xl md:text-2xl text-dark/70 animate-fade-in-delay font-light tracking-wide">
-            The Fine Print, Finally Fair
+            Fine Print, Finally Fair
           </p>
         </div>
 
