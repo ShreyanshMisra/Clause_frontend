@@ -461,6 +461,7 @@ export default function AnalysisPage() {
         onClose={() => setLetterModalOpen(false)}
         documentTitle={documentTitle}
         estimatedRecovery={estimatedRecovery}
+        analysisData={analysisData}
       />
       <CreateCaseModal
         isOpen={caseModalOpen}

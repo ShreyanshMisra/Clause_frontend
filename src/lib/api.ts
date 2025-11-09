@@ -211,6 +211,75 @@ export interface MetadataResponse {
   message: string;
 }
 
+export interface SenderInfo {
+  name: string;
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
+  phone?: string;
+  email?: string;
+}
+
+export interface RecipientInfo {
+  name: string;
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
+  contact_person?: string;
+}
+
+export interface DemandLetterPreferences {
+  deadline_days?: number;
+  tone?: "formal" | "neutral" | "firm";
+}
+
+export interface DemandLetterRequest {
+  prompt?: string;
+  analysis_json: {
+    documentId: string;
+    pdfUrl: string;
+    documentMetadata: DocumentMetadata;
+    deidentificationSummary: DeidentificationSummary;
+    keyDetailsDetected: KeyDetailsDetected;
+    analysisSummary: AnalysisSummary;
+    highlights: Array<{
+      id: string;
+      pageNumber: number;
+      color: string;
+      priority: number | string;
+      category: string;
+      text: string;
+      statute: string | null;
+      explanation: string;
+      damages_estimate: number | null;
+      position?: any;
+    }>;
+    document_info?: {
+      total_chunks?: number;
+      analysis_method?: string;
+      analysis_date?: string;
+    };
+  };
+  sender?: SenderInfo;
+  recipient?: RecipientInfo;
+  preferences?: DemandLetterPreferences;
+}
+
+export interface DemandLetterResponse {
+  success: boolean;
+  latex_source: string;
+  letter_text?: string; // Plain text version
+  metadata: {
+    generated_at: string;
+    total_damages: number;
+    issues_count: number;
+    deadline_date: string;
+    model_used: string;
+  };
+}
+
 // Custom error class for API errors
 export class APIError extends Error {
   constructor(
@@ -247,9 +316,9 @@ export async function fetchAPI<T = any>(
 
   // Add authorization header if token exists
   const token = getToken();
-  const requestHeaders: HeadersInit = {
+  const requestHeaders: Record<string, string> = {
     ...headers,
-  };
+  } as Record<string, string>;
 
   if (token) {
     requestHeaders["Authorization"] = `Bearer ${token}`;
@@ -280,12 +349,31 @@ export async function fetchAPI<T = any>(
       // Handle HTTP errors
       if (!response.ok) {
         let errorDetail = `HTTP ${response.status}: ${response.statusText}`;
+        let errorData: any = null;
 
         try {
-          const errorData = await response.json();
-          errorDetail = errorData.detail || errorDetail;
+          errorData = await response.json();
+          errorDetail = errorData.detail || errorData.message || errorDetail;
         } catch {
-          // If response is not JSON, use status text
+          // If response is not JSON, try to get text
+          try {
+            const text = await response.text();
+            if (text) {
+              errorDetail = text.substring(0, 500);
+            }
+          } catch {
+            // If response is not JSON, use status text
+          }
+        }
+
+        // Special handling for 404
+        if (response.status === 404) {
+          // Check if it's actually a network error or a real 404
+          if (errorData && errorData.detail) {
+            errorDetail = errorData.detail;
+          } else {
+            errorDetail = `Endpoint ${endpoint} not found. The server returned 404. This could mean:\n1. The endpoint path is incorrect\n2. The server needs to be restarted\n3. There's a routing issue\n\nPlease check:\n- Server is running: http://localhost:8000/docs\n- Endpoint exists: /demand-letter/generate\n- Try restarting the backend server`;
+          }
         }
 
         throw new APIError(response.status, errorDetail, response);
@@ -309,6 +397,25 @@ export async function fetchAPI<T = any>(
 
       if (error instanceof Error && error.name === "AbortError") {
         throw new APIError(408, "Request timeout");
+      }
+
+      // Handle network errors (TypeError: Failed to fetch)
+      if (
+        error instanceof TypeError &&
+        (error.message.includes("fetch") || error.message.includes("network"))
+      ) {
+        throw new APIError(
+          0,
+          `Network error: Cannot connect to backend at ${BASE_URL}. Please make sure the backend server is running. Start it with: cd clause_backend/app && python server.py`,
+        );
+      }
+
+      // Handle AbortError (timeout)
+      if (error instanceof Error && error.name === "AbortError") {
+        throw new APIError(
+          408,
+          `Request timeout: The server did not respond within the timeout period. Please check if the backend server is running and try again.`,
+        );
       }
 
       // Retry on network errors or 5xx errors

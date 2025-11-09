@@ -429,6 +429,7 @@ export default function ResultsPage({
         onClose={() => setLetterModalOpen(false)}
         documentTitle={results.documentTitle}
         estimatedRecovery={results.estimatedRecovery}
+        analysisData={analysisData}
       />
       <CreateCaseModal
         isOpen={caseModalOpen}
