@@ -13,7 +13,7 @@ export function Logo() {
           Clause
         </h1>
         <p className="text-xs font-medium text-dark-5 dark:text-gray-400">
-          The Fine Print, Finally Fair
+          Fine Print, Finally Fair
         </p>
       </div>
     </div>
